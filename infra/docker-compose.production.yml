@@ -13,16 +13,16 @@ services:
     volumes:
       - pg_data_foodgram:/var/lib/postgresql/data
   backend:
-    build: ../backend
+    image: prioritylonely/foodgram_backend
     env_file: .env
     depends_on:
       - db_foodgram
     volumes:
-      - static_food:/app/static
+      - static_food:/static
       - media_food:/app/media
   frontend:
     container_name: foodgram-front
-    build: ../frontend
+    image: prioritylonely/foodgram_frontend
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - static_food:/frontend_static
@@ -30,7 +30,7 @@ services:
     container_name: foodgram-proxy
     depends_on:
       - backend
-    build: .
+    image: prioritylonely/foodgram_gateway
     ports:
       - "9100:80"
     volumes:
