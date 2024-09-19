@@ -1,6 +1,6 @@
-from rest_framework import filters, permissions, viewsets, mixins
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
+from rest_framework import filters, mixins, permissions, viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import FollowSerializer, UserSerializer
 

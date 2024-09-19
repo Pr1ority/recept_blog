@@ -1,17 +1,18 @@
-from rest_framework import filters, permissions, viewsets, status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
-from django_filters.rest_framework import DjangoFilterBackend
-
-from recipes.models import (Recipe, Ingredient, Tag, Favorite, ShoppingCart,
-                            RecipeIngredient)
-from .serializers import RecipeSerializer, IngredientSerializer, TagSerializer
 from api.permissions import IsAuthorOrReadOnlyPermission
 from api.filters import RecipeFilter
 from api.paginations import FoodgramPageNumberPagination
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
