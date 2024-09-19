@@ -11,4 +11,4 @@ class Tag(models.Model):
 
     class Meta:
         verbose_name = 'тег'
-        verbose_name_plural = 'Теги' 
+        verbose_name_plural = 'Теги'

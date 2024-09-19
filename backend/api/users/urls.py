@@ -9,5 +9,5 @@ v1_router.register(r'users', UserViewSet, basename='users')
 
 
 urlpatterns = [
-    path('v1/', include(v1_router.urls)),
+    path('', include(v1_router.urls)),
 ]
