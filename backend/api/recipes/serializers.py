@@ -1,12 +1,11 @@
-from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
-from rest_framework import serializers
-
 import base64
 import uuid
 
-from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart
-
+from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from rest_framework import serializers
 
 User = get_user_model()
 
