@@ -10,7 +10,7 @@ class User(AbstractUser):
 
     class Meta:
         verbose_name = 'пользователь'
-        verbose_name_plural = 'Пользователи' 
+        verbose_name_plural = 'Пользователи'
 
 
 class Follow(models.Model):

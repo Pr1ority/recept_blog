@@ -17,6 +17,7 @@ class Ingredient(models.Model):
         verbose_name = 'ингредиет'
         verbose_name_plural = 'Ингредиенты'
 
+
 class Recipe(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='recipes', verbose_name='Автор')
