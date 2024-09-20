@@ -156,7 +156,10 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
-    'SERIALIZERS': {},
+    'SERIALIZERS': {
+        'user_create': 'api.users.serializers.UserCreateSerializer',
+        'user': 'api.users.serializers.UserSerializer',
+    },
 }
 
 INTERNAL_IPS = [
