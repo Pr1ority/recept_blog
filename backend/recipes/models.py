@@ -35,7 +35,7 @@ class Recipe(models.Model):
                                     verbose_name='Дата публикации')
 
     def __str__(self):
-        return self.title
+        return self.name
 
     class Meta:
         verbose_name = 'рецепт'
@@ -50,7 +50,7 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveIntegerField('Количество')
 
     def __str__(self):
-        return f'{self.amount} {self.ingredient.name} для {self.recipe.title}'
+        return f'{self.amount} {self.ingredient.name} для {self.recipe.name}'
 
     class Meta:
         verbose_name = 'ингредиент рецепта'
@@ -62,15 +62,17 @@ class Favorite(models.Model):
                              related_name='favorites',
                              verbose_name='Пользователь')
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE,
-                               related_name='favorited_by', verbose_name='Рецепт')
+                               related_name='favorited_by',
+                               verbose_name='Рецепт')
 
     class Meta:
         constraints = [
-        models.UniqueConstraint(fields=['user', 'recipe'], name='unique_favorite')
-    ]
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_favorite')
+        ]
 
     def __str__(self):
-        return f'{self.user.username} добавил {self.recipe.title} в избранное'
+        return f'{self.user.username} добавил {self.recipe.name} в избранное'
 
     class Meta:
         verbose_name = 'избранное'
@@ -86,13 +88,14 @@ class ShoppingCart(models.Model):
 
     class Meta:
         constraints = [
-        models.UniqueConstraint(fields=['user', 'recipe'], name='unique_shopping_cart')
-    ]
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_shopping_cart')
+        ]
 
     def __str__(self):
         return (
             f'{self.user.username} добавил '
-            f'{self.recipe.title} в список покупок')
+            f'{self.recipe.name} в список покупок')
 
     class Meta:
         verbose_name = 'список покупок'
