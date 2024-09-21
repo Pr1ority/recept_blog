@@ -21,7 +21,7 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='recipes', verbose_name='Автор')
-    title = models.CharField(max_length=200, verbose_name='Название')
+    name = models.CharField(max_length=200, verbose_name='Название')
     image = models.ImageField(upload_to='recipes/images/',
                               verbose_name='Изображение')
     text = models.TextField('Текст')
@@ -62,10 +62,12 @@ class Favorite(models.Model):
                              related_name='favorites',
                              verbose_name='Пользователь')
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE,
-                               related_name='favorites', verbose_name='Рецепт')
+                               related_name='favorited_by', verbose_name='Рецепт')
 
     class Meta:
-        unique_together = ('user', 'recipe')
+        constraints = [
+        models.UniqueConstraint(fields=['user', 'recipe'], name='unique_favorite')
+    ]
 
     def __str__(self):
         return f'{self.user.username} добавил {self.recipe.title} в избранное'
@@ -79,11 +81,13 @@ class ShoppingCart(models.Model):
                              related_name='shopping_cart',
                              verbose_name='Пользователь')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-                               related_name='in_shopping_cart',
+                               related_name='in_shopping_list_by',
                                verbose_name='Рецепт')
 
     class Meta:
-        unique_together = ('user', 'recipe')
+        constraints = [
+        models.UniqueConstraint(fields=['user', 'recipe'], name='unique_shopping_cart')
+    ]
 
     def __str__(self):
         return (
