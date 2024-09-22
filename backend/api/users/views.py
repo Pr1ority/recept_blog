@@ -32,7 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return [AllowAny()]
         return [IsAuthenticated()]
-    
+
     def create(self, request, *args, **kwargs):
         """Создание пользователя."""
         return super().create(request, *args, **kwargs)
