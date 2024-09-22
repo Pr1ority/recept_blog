@@ -150,24 +150,18 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 DJOSER = {
-    "LOGIN_FIELD": "email",
-    "SERIALIZERS": {
-        "user_create": "api.users.serializers.UserCreateSerializer",
-        "user": "api.users.serializers.UserSerializer",
-        "current_user": "api.users.serializers.UserSerializer",
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user_create': 'api.users.serializers.UserCreateSerializer',
+        'user': 'api.users.serializers.UserSerializer',
     },
-    "PERMISSIONS": {
-        "user_list": ["rest_framework.permissions.AllowAny"],
-    },
-    "HIDE_USERS": False,
 }
-
 
 INTERNAL_IPS = [
     '127.0.0.1',
