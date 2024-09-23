@@ -147,7 +147,6 @@ AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -157,12 +156,19 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'SERIALIZERS': {
-        'user_create': 'api.users.serializers.UserCreateSerializer',
-        'user': 'api.users.serializers.UserSerializer',
+    "LOGIN_FIELD": "email",
+    "SERIALIZERS": {
+        "user_create": "api.users.serializers.UserCreateSerializer",
+        "user": "api.users.serializers.UserSerializer",
+        "current_user": "api.users.serializers.CustomUserSerializer",
     },
+    "PERMISSIONS": {
+        "user_list": ["rest_framework.permissions.AllowAny"],
+        "user": ["djoser.permissions.CurrentUserOrAdminOrReadOnly"],
+    },
+    "HIDE_USERS": False,
 }
+
 
 INTERNAL_IPS = [
     '127.0.0.1',

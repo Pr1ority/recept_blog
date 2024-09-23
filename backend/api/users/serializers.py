@@ -28,19 +28,34 @@ class FollowSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            password=validated_data['password']
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
         )
-        return user
+
 
 
 class UserSerializer(BaseUserSerializer):
-    class Meta(BaseUserSerializer.Meta):
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
         model = User
-        fields = ('id', 'email', 'username')
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_subscribed",
+        )
+
+    def get_is_subscribed(self, obj):
+        user_id = self.context.get("request").user.id
+        return Follow.objects.filter(
+            author=obj.id, user=user_id
+        ).exists()
+
