@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import FollowViewSet, CustomUserViewSet
+from .views import CustomUserViewSet, FollowViewSet
 
 v1_router = DefaultRouter()
 v1_router.register(r'follow', FollowViewSet, basename='follow')
