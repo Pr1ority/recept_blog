@@ -18,10 +18,10 @@ class FollowSerializer(serializers.ModelSerializer):
     def validate_following(self, author):
         user = self.context['request'].user
         if user == author:
-            raise serializers.ValidationError("Вы не можете отслеживать себя")
+            raise serializers.ValidationError('Вы не можете отслеживать себя')
         if Follow.objects.filter(user=user, following=author).exists():
             raise serializers.ValidationError(
-                "Вы уже подписаны на этого пользователя")
+                'Вы уже подписаны на этого пользователя')
         return author
 
 
@@ -29,12 +29,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "password",
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password',
         )
 
 
@@ -44,16 +44,16 @@ class UserSerializer(BaseUserSerializer):
     class Meta:
         model = User
         fields = (
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "is_subscribed",
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'is_subscribed',
         )
 
     def get_is_subscribed(self, obj):
-        user_id = self.context.get("request").user.id
+        user_id = self.context.get('request').user.id
         return Follow.objects.filter(
             author=obj.id, user=user_id
         ).exists()
