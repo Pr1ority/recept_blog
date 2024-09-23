@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
 from .serializers import FollowSerializer, UserSerializer
 
@@ -31,3 +32,11 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'list']:
             return [AllowAny()]
         return [IsAuthenticated()]
+    
+    def create(self, request, *args, **kwargs):
+        """Метод для создания пользователя."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
