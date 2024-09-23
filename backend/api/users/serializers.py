@@ -38,7 +38,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
 
 
-
 class UserSerializer(BaseUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
@@ -58,4 +57,3 @@ class UserSerializer(BaseUserSerializer):
         return Follow.objects.filter(
             author=obj.id, user=user_id
         ).exists()
-
