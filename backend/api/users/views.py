@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import filters, mixins, permissions, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import FollowSerializer, UserSerializer
 
@@ -26,4 +26,8 @@ class FollowViewSet(mixins.ListModelMixin,
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create', 'list']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
