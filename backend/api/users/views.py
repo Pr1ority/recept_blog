@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import filters, mixins, permissions, viewsets
-from rest_framework.permissions import (IsAuthenticated,
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 
 from .serializers import FollowSerializer
@@ -26,9 +26,10 @@ class FollowViewSet(mixins.ListModelMixin,
 
 
 class CustomUserViewSet(UserViewSet):
-
     def get_permissions(self):
-        if self.action == 'me':
+        if self.action in ['create', 'list']:
+            self.permission_classes = [AllowAny]
+        elif self.action == 'me':
             self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [IsAuthenticatedOrReadOnly]
