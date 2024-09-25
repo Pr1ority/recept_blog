@@ -27,8 +27,10 @@ class Recipe(models.Model):
     text = models.TextField('Текст')
     ingredients = models.ManyToManyField(Ingredient,
                                          through='RecipeIngredient',
-                                         verbose_name='Ингредиенты')
-    tags = models.ManyToManyField(Tag, verbose_name='Теги')
+                                         verbose_name='Ингредиенты',
+                                         related_name='recipes')
+    tags = models.ManyToManyField(Tag, verbose_name='Теги',
+                                  related_name='recipes')
     cooking_time = models.PositiveIntegerField(
         help_text='Время в минутах', verbose_name='Время приготовления')
     pub_date = models.DateTimeField(auto_now_add=True,

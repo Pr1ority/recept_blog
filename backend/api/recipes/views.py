@@ -134,7 +134,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
     def get_recipe(self):
         recipe_id = self.kwargs['recipe_id']
-        return get_object_or_404(Recipe, id=recipe_id)
+        return get_object_or_404(RecipeIngredient, id=recipe_id)
 
     def get_queryset(self):
         return self.get_recipe().ingredients.all()
