@@ -31,11 +31,11 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    amount = serializers.IntegerField()
+    measurement_unit = serializers.IntegerField()
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
