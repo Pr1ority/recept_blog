@@ -49,6 +49,13 @@ class RecipeSerializer(serializers.ModelSerializer):
             'tags', 'cooking_time', 'pub_date'
         )
 
+    def get_ingredients(self, obj):
+        ingredients = RecipeIngredient.objects.filter(recipe=obj)
+        serializer = RecipeIngredientSerializer(ingredients, many=True)
+
+        return serializer.data
+
+
     def create_ingredients(self, recipe, ingredients_data):
         for ingredient in ingredients_data:
             RecipeIngredient.objects.create(
