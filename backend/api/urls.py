@@ -13,7 +13,7 @@ v1_router.register(r'users', CustomUserViewSet, basename='users')
 
 
 urlpatterns = [
-    path('', include('v1_router.urls')),
+    path('', include(v1_router.urls)),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
 ]
