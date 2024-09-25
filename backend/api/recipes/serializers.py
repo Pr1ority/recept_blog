@@ -30,6 +30,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    measurement_unit = serializers.CharField()
 
     class Meta:
         model = Ingredient
@@ -39,7 +41,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
     tags = TagSerializer(many=True)
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientSerializer(many=True)
     image = Base64ImageField()
 
     class Meta:
@@ -54,6 +56,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         serializer = RecipeIngredientSerializer(ingredients, many=True)
 
         return serializer.data
+
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
