@@ -132,17 +132,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     search_fields = ['^name']
     ordering_fields = ['name']
 
-    def get_recipe(self):
-        recipe_id = self.kwargs['recipe_id']
-        return get_object_or_404(RecipeIngredient, id=recipe_id)
-
-    def get_queryset(self):
-        return self.get_recipe().ingredients.all()
-
-    def perform_create(self, serializer):
-        recipe = self.get_recipe()
-        serializer.save(author=self.request.user, recipe=recipe)
-
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
