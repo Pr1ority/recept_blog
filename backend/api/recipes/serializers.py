@@ -11,11 +11,11 @@ User = get_user_model()
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(queryset=Ingredient.objects.all())
+    id = serializers.ReadOnlyField(source='ingredient.id')
     amount = serializers.IntegerField()
-    name = serializers.ReadOnlyField(queryset=Ingredient.objects.all())
+    name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
-        queryset=Ingredient.objects.all())
+        source='ingredient.measurement_unit')
 
     class Meta:
         model = RecipeIngredient
