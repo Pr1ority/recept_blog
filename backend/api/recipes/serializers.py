@@ -3,6 +3,7 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from rest_framework import serializers
@@ -68,7 +69,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients_data:
             RecipeIngredient.objects.create(
                 recipe=recipe,
-                ingredient_id=ingredient['id'],
+                ingredient_id=get_object_or_404(
+                    Ingredient, pk=ingredient.get('id').id),
                 amount=ingredient['amount']
             )
 
