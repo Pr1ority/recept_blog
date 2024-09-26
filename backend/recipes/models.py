@@ -29,7 +29,7 @@ class Recipe(models.Model):
                                          through='RecipeIngredient',
                                          verbose_name='Ингредиенты',
                                          related_name='recipes')
-    tags = models.ManyToManyField(Tag, through='RecipesTags',
+    tags = models.ManyToManyField(Tag, through='RecipeTags',
                                   verbose_name='Теги',
                                   related_name='recipes')
     cooking_time = models.PositiveIntegerField(
@@ -70,8 +70,8 @@ class RecipeTags(models.Model):
         return f'Тег рецепта {self.recipe.name} - {self.tag.name}'
 
     class Meta:
-        verbose_name = 'ингредиент рецепта'
-        verbose_name_plural = 'Ингредиенты рецепта'
+        verbose_name = 'теги рецепта'
+        verbose_name_plural = 'Теги рецепта'
 
 
 class Favorite(models.Model):
