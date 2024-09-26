@@ -41,9 +41,9 @@ class Recipe(models.Model):
         return self.name
 
     class Meta:
+        ordering = ('-pub_date',)
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['-pub_date']
 
 
 class RecipeIngredient(models.Model):
