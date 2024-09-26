@@ -15,7 +15,7 @@ from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().order_by('id') 
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = FoodgramPageNumberPagination
