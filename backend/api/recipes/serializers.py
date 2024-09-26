@@ -67,12 +67,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create_ingredients(self, recipe, ingredients_data):
         for ingredient in ingredients_data:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient_id=get_object_or_404(
-                    Ingredient, pk=ingredient.get('id').id),
-                amount=ingredient['amount']
-            )
+            ingredient_id = ingredient.get('id')
+            if ingredient_id is not None:
+                RecipeIngredient.objects.create(
+                    recipe=recipe,
+                    ingredient_id=get_object_or_404(
+                        Ingredient, pk=ingredient_id,
+                        amount=ingredient['amount']))
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tags')
