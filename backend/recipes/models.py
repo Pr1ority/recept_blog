@@ -66,6 +66,9 @@ class RecipeTags(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE,
                             verbose_name='Тег')
 
+    def __str__(self):
+        return f'Тег рецепта {self.recipe.name} - {self.tag.name}'
+
     class Meta:
         verbose_name = 'теги рецепта'
         verbose_name_plural = 'Теги рецепта'
