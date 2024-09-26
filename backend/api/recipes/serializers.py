@@ -19,7 +19,7 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount', 'name', 'measurement_uni']
+        fields = ['id', 'amount', 'name', 'measurement_unit']
 
 
 class Base64ImageField(serializers.ImageField):
