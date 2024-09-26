@@ -67,7 +67,7 @@ class RecipeTags(models.Model):
                             verbose_name='Ингредиент')
 
     def __str__(self):
-        return f'Тег рецепта {self.recipe} - {self.tag}'
+        return f'Тег рецепта {self.recipe.name} - {self.tag.name}'
 
     class Meta:
         verbose_name = 'ингредиент рецепта'
