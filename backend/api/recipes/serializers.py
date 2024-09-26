@@ -11,12 +11,15 @@ User = get_user_model()
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = serializers.ReadOnlyField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField()
+    name = serializers.ReadOnlyField(queryset=Ingredient.objects.all())
+    measurement_unit = serializers.ReadOnlyField(
+        queryset=Ingredient.objects.all())
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount']
+        fields = ['id', 'amount', 'name', 'measurement_uni']
 
 
 class Base64ImageField(serializers.ImageField):
