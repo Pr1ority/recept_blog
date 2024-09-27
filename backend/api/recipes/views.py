@@ -24,13 +24,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        author_id = self.kwargs.get('author_id')
-        if author_id:
-            queryset = queryset.filter(author__id=author_id)
-        return queryset
-
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         user = request.user

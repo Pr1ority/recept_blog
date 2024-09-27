@@ -26,6 +26,7 @@ class FollowViewSet(mixins.ListModelMixin,
 
 
 class CustomUserViewSet(UserViewSet):
+
     def get_permissions(self):
         if self.action in ['create', 'list']:
             self.permission_classes = [AllowAny]
@@ -34,3 +35,4 @@ class CustomUserViewSet(UserViewSet):
         else:
             self.permission_classes = [IsAuthenticatedOrReadOnly]
         return super().get_permissions()
+    
