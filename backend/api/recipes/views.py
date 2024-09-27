@@ -20,7 +20,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = FoodgramPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
-    filterset_fields = ['author', 'tags', 'ingredients']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        author = self.request.query_params.get('author')
+        if author:
+            queryset = queryset.filter(author__username=author)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
