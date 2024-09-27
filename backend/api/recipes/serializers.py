@@ -65,7 +65,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id', 'author', 'name', 'image', 'text', 'ingredients',
-            'tags', 'cooking_time', 'pub_date'
+            'tags', 'cooking_time', 'pub_date', 'is_in_shopping_cart'
         )
 
     def create_ingredients(self, recipe, ingredients_data):
