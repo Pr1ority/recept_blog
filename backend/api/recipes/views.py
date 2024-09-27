@@ -1,13 +1,14 @@
 from api.filters import RecipeFilter
 from api.paginations import FoodgramPageNumberPagination
 from api.permissions import IsAuthorOrReadOnlyPermission
+from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
@@ -61,64 +62,58 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response({'status': 'рецепт не находится в избранном'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post'])
+    @action(
+        detail=True,
+        methods=("post", "delete"),
+        url_path="shopping_cart",
+        url_name="shopping_cart",
+    )
     def shopping_cart(self, request, pk=None):
-        recipe = self.get_object()
+        """Добавление и удаление рецептов из списока покупок."""
         user = request.user
-        cart_item, created = ShoppingCart.objects.get_or_create(user=user,
-                                                                recipe=recipe)
-        if created:
-            return Response({'status': 'рецепт добавлен в список покупок'},
-                            status=status.HTTP_201_CREATED)
-        return Response({'status': 'рецепт уже в списке покупок'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        if request.method == "POST":
+            name = "список покупок"
+            return self.add(ShoppingCart, user, pk, name)
+        if request.method == "DELETE":
+            name = "списка покупок"
+            return self.delete_relation(ShoppingCart, user, pk, name)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(detail=True, methods=['delete'])
-    def remove_from_cart(self, request, pk=None):
-        recipe = self.get_object()
-        user = request.user
-        cart_item = ShoppingCart.objects.filter(user=user, recipe=recipe)
-        if cart_item.exists():
-            cart_item.delete()
-            return Response({'status': 'рецепт удален из списка покупок'},
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response({'status': 'рецепт не в списке покупок'},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['get'])
+    @action(
+        detail=False,
+        methods=("get",),
+        permission_classes=(IsAuthenticated,),
+        url_path="download_shopping_cart",
+        url_name="download_shopping_cart",
+    )
     def download_shopping_cart(self, request):
-        user = request.user
-        shopping_cart = ShoppingCart.objects.filter(user=user)
+        shopping_cart = ShoppingCart.objects.filter(user=self.request.user)
+        recipes = [item.recipe.id for item in shopping_cart]
+        buy = (
+            RecipeIngredient.objects.filter(recipe__in=recipes)
+            .values("ingredient")
+            .annotate(amount=Sum("amount"))
+        )
 
-        if not shopping_cart.exists():
-            return Response({'detail': 'Ваш список покупок пуст'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        purchased = [
+            "Список покупок:",
+        ]
+        for item in buy:
+            ingredient = Ingredient.objects.get(pk=item["ingredient"])
+            amount = item["amount"]
+            purchased.append(
+                f"{ingredient.name}: {amount}, "
+                f"{ingredient.measurement_unit}"
+            )
+        purchased_in_file = "\n".join(purchased)
 
-        ingredients = {}
-        for item in shopping_cart:
-            recipe = item.recipe
-            for ingredient in recipe.ingredients.all():
-                amount = RecipeIngredient.objects.get(
-                    recipe=recipe, ingredient=ingredient).amount
-                if ingredient.name in ingredients:
-                    ingredients[ingredient.name]['amount'] += amount
-                else:
-                    ingredients[ingredient.name] = {
-                        'measurement_unit': ingredient.measurement_unit,
-                        'amount': amount
-                    }
-
-        shopping_list = []
-        for ingredient, data in ingredients.items():
-            shopping_list.append(
-                f"{ingredient} — {data['amount']} {data['measurement_unit']}")
-
-        content = '\n'.join(shopping_list)
-        response = HttpResponse(content, content_type='text/plain')
-        response['Content-Disposition'] = (
-            'attachment; filename="shopping_list.txt"')
+        response = HttpResponse(purchased_in_file, content_type="text/plain")
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=shopping-list.txt"
 
         return response
+
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
