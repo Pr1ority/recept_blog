@@ -59,6 +59,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                                               many=True)
     ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -101,6 +102,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.create_ingredients(instance, ingredients_data)
 
         return instance
+    
+    def get_is_in_shopping_cart(self, obj):
+        """Добавлен ли рецепт в список покупок."""
+        user_id = self.context.get("request").user.id
+        return ShoppingCart.objects.filter(
+            user=user_id, recipe=obj.id
+        ).exists()
+
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
