@@ -21,15 +21,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        author = self.request.query_params.get('author')
-        if author:
-            queryset = queryset.filter(author__username=author)
-        return queryset
-
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        author_id = self.kwargs.get('author_id')
+        if author_id:
+            queryset = queryset.filter(author__id=author_id)
+        return queryset
 
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
