@@ -109,11 +109,9 @@ class ShoppingCart(models.Model):
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique_shopping_cart')
         ]
+        verbose_name = 'список покупок'
 
     def __str__(self):
         return (
             f'{self.user.username} добавил '
             f'{self.recipe.name} в список покупок')
-
-    class Meta:
-        verbose_name = 'список покупок'
