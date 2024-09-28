@@ -8,7 +8,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
@@ -61,9 +61,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_204_NO_CONTENT)
         return Response({'status': 'рецепт не находится в избранном'},
                         status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def shopping_cart(self, request):
+        user = request.user
+        shopping_cart = ShoppingCart.objects.filter(user=user)
+        recipes = [item.recipe for item in shopping_cart]
+        page = self.paginate_queryset(recipes)
+        if page is not None:
+            serializer = RecipeSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = RecipeSerializer(recipes, many=True, context={'request': request})
+        return Response(serializer.data)
 
     @action(detail=True, methods=['post'])
-    def shopping_cart(self, request, pk=None):
+    def add_in_shopping_cart(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
         cart_item, created = ShoppingCart.objects.get_or_create(user=user,
@@ -73,6 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_201_CREATED)
         return Response({'status': 'рецепт уже в списке покупок'},
                         status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=True, methods=['delete'])
     def remove_from_cart(self, request, pk=None):
         recipe = self.get_object()
@@ -84,6 +98,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_204_NO_CONTENT)
         return Response({'status': 'рецепт не в списке покупок'},
                         status=status.HTTP_400_BAD_REQUEST)
+    
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
         user = request.user
@@ -104,16 +119,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                         'measurement_unit': ingredient.measurement_unit,
                         'amount': amount
                     }
-        shopping_list = []
-        for ingredient, data in ingredients.items():
-            shopping_list.append(
-                f"{ingredient} — {data['amount']} {data['measurement_unit']}")
+        shopping_list = [
+            f"{ingredient} — {data['amount']} {data['measurement_unit']}"
+            for ingredient, data in ingredients.items()
+        ]
         content = '\n'.join(shopping_list)
         response = HttpResponse(content, content_type='text/plain')
         response['Content-Disposition'] = (
             'attachment; filename="shopping_list.txt"')
-
-
+        return response
+        
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
