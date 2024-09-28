@@ -68,7 +68,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'])
-    def add_in_shopping_cart(self, request, pk=None):
+    def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
         cart_item, created = ShoppingCart.objects.get_or_create(user=user,
