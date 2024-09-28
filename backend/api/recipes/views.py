@@ -61,19 +61,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_204_NO_CONTENT)
         return Response({'status': 'рецепт не находится в избранном'},
                         status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=False, methods=['get'])
-    def shopping_cart(self, request):
-        user = request.user
-        shopping_cart = ShoppingCart.objects.filter(user=user)
-        recipes = [item.recipe for item in shopping_cart]
-        page = self.paginate_queryset(recipes)
-        if page is not None:
-            serializer = RecipeSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
-
-        serializer = RecipeSerializer(recipes, many=True, context={'request': request})
-        return Response(serializer.data)
 
     @action(detail=True, methods=['post'])
     def add_in_shopping_cart(self, request, pk=None):
