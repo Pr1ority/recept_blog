@@ -11,16 +11,21 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
+from .serializers import IngredientSerializer, RecipeCreateSerializer, RecipeSerializer, TagSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all().order_by('-pub_date')
-    serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = FoodgramPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
+
+    def get_serializer_class(self):
+        if self.action in ("create", "partial_update"):
+            return RecipeCreateSerializer
+
+        return RecipeSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
