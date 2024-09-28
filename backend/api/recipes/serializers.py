@@ -157,4 +157,4 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         fields = ('user', 'recipe')
 
     def to_representation(self, instance):
-        return RecipeCreateSerializer(instance.recipe, context=self.context).data
+        return RecipeSerializer(instance.recipe, context=self.context).data
