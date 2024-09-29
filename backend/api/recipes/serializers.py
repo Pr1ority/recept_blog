@@ -75,21 +75,26 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'tags', 'cooking_time', 'pub_date',
         )
 
-    def create(self, validated_data):
-        author = self.context.get('request').user
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        validated_data.pop('author', None)
-        recipe = Recipe.objects.create(author=author, **validated_data)
-        recipe.tags.set(tags)
-
-        for ingredient_data in ingredients:
-            ingredient_instance = get_object_or_404(
-                Ingredient, pk=ingredient_data['id'].id)
+    def create_ingredients(self, recipe, ingredients_data):
+        """Метод для создания связей рецепт-ингредиенты."""
+        for ingredient_data in ingredients_data:
+            ingredient = get_object_or_404(Ingredient, pk=ingredient_data['id'])
             amount = ingredient_data['amount']
             RecipeIngredient.objects.create(
-                recipe=recipe, ingredient=ingredient_instance, amount=amount
+                recipe=recipe,
+                ingredient=ingredient,
+                amount=amount
             )
+
+    def create(self, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        author = self.context['request'].user
+        
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tags.set(tags_data)
+
+        self.create_ingredients(recipe, ingredients_data)
 
         return recipe
 
@@ -100,8 +105,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
         instance.image = validated_data.get('image', instance.image)
-        instance.cooking_time = validated_data.get('cooking_time',
-                                                   instance.cooking_time)
+        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
         instance.save()
 
         instance.tags.set(tags_data)
