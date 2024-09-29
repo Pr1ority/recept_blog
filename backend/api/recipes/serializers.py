@@ -20,6 +20,12 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
         fields = ['id', 'amount']
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['name'] = instance.ingredient.name
+        representation['measurement_unit'] = instance.ingredient.measurement_unit
+        return representation
+
 
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
@@ -88,7 +94,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        print(f"Ингредиенты в запросе: {ingredients}")
         validated_data.pop('author', None)
         recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
