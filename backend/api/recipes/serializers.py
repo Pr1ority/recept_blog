@@ -66,6 +66,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                                               many=True)
     ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField()
 
     class Meta:
         model = Recipe
@@ -74,21 +75,24 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'tags', 'cooking_time', 'pub_date',
         )
 
-    def create_ingredients(self, recipe, ingredients_data):
-        for ingredient in ingredients_data:
-            ingredient_id = ingredient.get('id')
-            if ingredient_id is not None:
-                RecipeIngredient.objects.create(
-                    recipe=recipe,
-                    ingredient_id=ingredient_id,
-                        amount=ingredient['amount'])
-
     def create(self, validated_data):
-        tags_data = validated_data.pop('tags')
-        ingredients_data = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags_data)
-        self.create_ingredients(recipe, ingredients_data)
+        author = self.context.get('request').user
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tags.set(tags)
+
+        for ingredient in ingredients:
+            amount = ingredient.get('amount')
+            ingredient = get_object_or_404(
+                Ingredient, pk=ingredient.get('id').id
+            )
+
+            RecipeIngredient.objects.create(
+                recipe=recipe, ingredient=ingredient, amount=amount
+            )
+
         return recipe
 
     def update(self, instance, validated_data):
