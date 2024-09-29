@@ -86,9 +86,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             if ingredient_id is not None:
                 RecipeIngredient.objects.create(
                     recipe=recipe,
-                    ingredient_id=get_object_or_404(
-                        Ingredient, pk=ingredient_id,
-                        amount=ingredient['amount']))
+                    ingredient_id=ingredient_id,
+                        amount=ingredient['amount'])
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tags')
@@ -125,9 +124,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, obj):
         ingredients = RecipeIngredient.objects.filter(recipe=obj)
-        serializer = RecipeIngredientSerializer(ingredients, many=True)
-
-        return serializer.data
+        return RecipeIngredientSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         user_id = self.context.get('request').user.id
