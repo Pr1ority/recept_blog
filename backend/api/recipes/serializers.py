@@ -21,6 +21,7 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'amount']
 
     def to_representation(self, instance):
+        print(f"Ingredient instance in to_representation: {instance}")
         representation = super().to_representation(instance)
         representation['name'] = instance.ingredient.name
         representation['measurement_unit'] = instance.ingredient.measurement_unit
@@ -83,13 +84,19 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)
-        RecipeIngredient.objects.bulk_create(
-            [RecipeIngredient(
-                recipe=recipe,
-                ingredient=Ingredient.objects.get(pk=ingredient['id']),
-                amount=ingredient['amount']
-            ) for ingredient in ingredients]
-        )
+        print(f"Ингредиенты в tags_and_ingredients_set: {ingredients}")
+        recipe_ingredients = [
+        RecipeIngredient(
+            recipe=recipe,
+            ingredient=Ingredient.objects.get(pk=ingredient['id']),
+            amount=ingredient['amount'] 
+        ) for ingredient in ingredients
+        ]
+        for ri in recipe_ingredients:
+            print(f"RecipeIngredient: {ri}")
+        
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
+
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
@@ -98,6 +105,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
         self.tags_and_ingredients_set(recipe, tags, ingredients)
+        print(f"Создан рецепт: {recipe}, с ингредиентами: {recipe.ingredients_list.all()}")
         return recipe
 
 
