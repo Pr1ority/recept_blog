@@ -78,8 +78,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def create_ingredients(self, recipe, ingredients_data):
         """Метод для создания связей рецепт-ингредиенты."""
         for ingredient_data in ingredients_data:
-            ingredient = get_object_or_404(Ingredient, pk=ingredient_data['id'])
+            ingredient_id = ingredient_data['id']
             amount = ingredient_data['amount']
+            ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
             RecipeIngredient.objects.create(
                 recipe=recipe,
                 ingredient=ingredient,
