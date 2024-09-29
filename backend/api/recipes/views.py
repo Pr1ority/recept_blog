@@ -78,7 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_201_CREATED)
         return Response({'status': 'рецепт уже в списке покупок'},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     @action(detail=True, methods=['delete'])
     def remove_from_cart(self, request, pk=None):
         recipe = self.get_object()
