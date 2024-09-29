@@ -22,9 +22,13 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         print(f"Ingredient instance in to_representation: {instance}")
-        representation = super().to_representation(instance)
-        representation['name'] = instance.ingredient.name
-        representation['measurement_unit'] = instance.ingredient.measurement_unit
+        ingredient = instance.ingredient
+        representation = {
+            'id': ingredient.id,
+            'name': ingredient.name,
+            'measurement_unit': ingredient.measurement_unit,
+            'amount': instance.amount,
+        }
         return representation
 
 
