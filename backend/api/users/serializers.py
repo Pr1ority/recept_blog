@@ -58,5 +58,5 @@ class UserSerializer(UserSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             user_id = request.user.id
-            return Follow.objects.filter(author=obj.id, user=user_id).exist()
+            return Follow.objects.filter(author=obj.id, user=user_id).exists()
         return False
