@@ -1,28 +1,30 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
+
+from api.recipes.serializers import RecipeSerializer
+from recipes.models import Recipe
 from users.models import Follow
 
 User = get_user_model()
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
-    following = serializers.SlugRelatedField(slug_field='username',
-                                             queryset=User.objects.all())
+    author = UserSerializer(read_only=True)
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(source='author.recipes.count', read_only=True)
 
     class Meta:
         model = Follow
-        fields = ('id', 'user', 'following')
+        fields = ['author', 'recipes', 'recipes_count']
 
-    def validate_following(self, author):
-        user = self.context['request'].user
-        if user == author:
-            raise serializers.ValidationError('Вы не можете отслеживать себя')
-        if Follow.objects.filter(user=user, following=author).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписаны на этого пользователя')
-        return author
+     def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes_limit = request.query_params.get('recipes_limit')
+        recipes = Recipe.objects.filter(author=obj.author)
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return RecipeSerializer(recipes, many=True).data
 
 
 class UserCreateSerializer(UserCreateSerializer):

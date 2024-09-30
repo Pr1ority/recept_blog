@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from users.models import Follow
 from recipes.models import Recipe
-from .serializers import UserSerializer
+from .serializers import UserSerializer, FollowSerializer
 
 User = get_user_model()
 
@@ -37,39 +37,37 @@ class CustomUserViewSet(UserViewSet):
 
         user = request.user
         author = get_object_or_404(User, id=id)
-        change_subscription_status = Follow.objects.filter(
-            user=user.id, author=author.id
-        )
+        subscription_exists = Follow.objects.filter(user=user.id, author=author.id).exists()
+
         if request.method == 'POST':
             if user == author:
-                return Response('Вы пытаетесь подписаться на себя!!',
+                return Response({'message': 'нельзя подписаться на самого себя'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if change_subscription_status.exists():
-                return Response(f'Вы теперь подписаны на {author}',
+            if subscription_exists:
+                return Response({'message': f'вы уже подписаны на {author.username}'},
                                 status=status.HTTP_400_BAD_REQUEST)
             subscribe = Follow.objects.create(
                 user=user,
                 author=author
             )
             subscribe.save()
-            return Response(f'Вы подписались на {author}',
+            return Response({'message': f'вы подписались на {author.username}'},
                             status=status.HTTP_201_CREATED)
-        if change_subscription_status.exists():
-            change_subscription_status.delete()
-            return Response(f'Вы отписались от {author}',
+        if subscription_exists:
+            Follow.objects.filter(user=user.id, author=author.id).delete()
+            return Response({'message': f'вы отписались от {author.username}'},
                             status=status.HTTP_204_NO_CONTENT)
-        return Response(f'Вы не подписаны на {author}',
+        return Response({'message': f'вы не подписаны на {author.username}'},
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         user = request.user
-        authors = user.follower.values_list('author', flat=True)
-        recipes = Recipe.objects.filter(author__in=authors)
-        page = self.paginate_queryset(recipes)
+        subscriptions = Follow.objects.filter(user=user)
+        page = self.paginate_queryset(subscriptions)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = FollowSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(recipes, many=True)
+        serializer = FollowSerializer(subscriptions, many=True, context={'request': request})
         return Response(serializer.data)
