@@ -25,30 +25,27 @@ class CustomUserViewSet(UserViewSet):
             self.permission_classes = [IsAuthenticatedOrReadOnly]
         return super().get_permissions()
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post', 'delete'])
     def subscribe(self, request, id=None):
         author = self.get_object()
         user = request.user
-        follow, created = Follow.objects.get_or_create(user=user,
-                                                       author=author)
-        if created:
-            return Response({'status': 'оформлена подписка на автора'},
-                            status=status.HTTP_201_CREATED)
-        return Response({'status': 'вы уже подписаны на автора'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'post':
+            follow, created = Follow.objects.get_or_create(user=user,
+                                                           author=author)
+            if created:
+                return Response({'status': 'оформлена подписка на автора'},
+                                status=status.HTTP_201_CREATED)
+            return Response({'status': 'вы уже подписаны на автора'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'delete':
+            follow = Follow.objects.filter(user=user, author=author)
+            if follow.exists():
+                follow.delete()
+                return Response({'status': 'вы отписались от автора'},
+                                status=status.HTTP_204_NO_CONTENT)
+            return Response({'status': 'вы не подписаны на автора'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['delete'])
-    def unsubscribe(self, request, pk=None):
-        author = self.get_object()
-        user = request.user
-        follow = Follow.objects.filter(user=user, author=author)
-        if follow.exists():
-            follow.delete()
-            return Response({'status': 'вы отписались от автора'},
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response({'status': 'вы не подписаны на автора'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         user = request.user
