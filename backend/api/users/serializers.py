@@ -18,7 +18,7 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ['author', 'recipes', 'recipes_count']
 
-     def get_recipes(self, obj):
+    def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = Recipe.objects.filter(author=obj.author)
