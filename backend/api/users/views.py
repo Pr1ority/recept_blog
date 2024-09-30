@@ -62,21 +62,20 @@ class CustomUserViewSet(UserViewSet):
         return Response({'message': f'вы не подписаны на {author.username}'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'])
+    @action(
+        detail=False,
+        methods=('get',),
+        permission_classes=(IsAuthenticated, ),
+        url_path='subscriptions',
+        url_name='subscriptions',
+    )
     def subscriptions(self, request):
-        user = request.user
-        if not user.is_authenticated:
-            return Response(
-                {'detail': 'Authentication credentials were not provided.'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        subscriptions = Follow.objects.filter(user=user)
-        page = self.paginate_queryset(subscriptions)
-        if page is not None:
-            serializer = FollowSerializer(page, many=True,
+
+        queryset = User.objects.filter(follow__user=self.request.user)
+        if queryset:
+            pages = self.paginate_queryset(queryset)
+            serializer = FollowSerializer(pages, many=True,
                                           context={'request': request})
             return self.get_paginated_response(serializer.data)
-
-        serializer = FollowSerializer(subscriptions, many=True,
-                                      context={'request': request})
-        return Response(serializer.data)
+        return Response('у вас нет подписок',
+                        status=status.HTTP_400_BAD_REQUEST)
