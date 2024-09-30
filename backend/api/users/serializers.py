@@ -17,10 +17,10 @@ class AddRecipeSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(source='author.recipes.count',
-                                             read_only=True)
+    recipes_count = serializers.SerializerMethodField(
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -35,6 +35,11 @@ class FollowSerializer(serializers.ModelSerializer):
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
         return AddRecipeSerializer(recipes, many=True).data
+    
+    @staticmethod
+    def get_recipes_count(obj):
+
+        return obj.recipes.count()
 
 
 class UserCreateSerializer(UserCreateSerializer):
