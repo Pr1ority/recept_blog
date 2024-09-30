@@ -23,8 +23,8 @@ class FollowSerializer(serializers.ModelSerializer):
                                              read_only=True)
 
     class Meta:
-        model = Follow
-        fields = ['author', 'recipes', 'recipes_count', 'email', 'id', 'username', 'first_name', 'last_name',
+        model = User
+        fields = ['recipes', 'recipes_count', 'email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed',]
 
     def get_recipes(self, obj):
