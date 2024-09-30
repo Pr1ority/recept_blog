@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
@@ -25,26 +26,36 @@ class CustomUserViewSet(UserViewSet):
             self.permission_classes = [IsAuthenticatedOrReadOnly]
         return super().get_permissions()
 
-    @action(detail=True, methods=['post', 'delete'])
+    @action(detail=True, methods=['post', 'delete'], url_path='subscribe')
     def subscribe(self, request, id=None):
-        author = self.get_object()
+        author = get_object_or_404(User, id=id)
         user = request.user
-        if request.method == 'post':
-            follow, created = Follow.objects.get_or_create(user=user,
-                                                           author=author)
-            if created:
-                return Response({'status': 'оформлена подписка на автора'},
-                                status=status.HTTP_201_CREATED)
-            return Response({'status': 'вы уже подписаны на автора'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if request.method == 'delete':
+        if request.method == 'POST':
+            if user == author:
+                return Response({'error': 'Нельзя подписаться на самого себя'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            if Follow.objects.filter(user=user, author=author).exists():
+                return Response({'error': 'Вы уже подписаны на автора'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            Follow.objects.create(user=user, author=author)
+            return Response({'status': 'Подписка успешно оформлена'},
+                            status=status.HTTP_201_CREATED)
+
+        elif request.method == 'delete':
             follow = Follow.objects.filter(user=user, author=author)
-            if follow.exists():
-                follow.delete()
-                return Response({'status': 'вы отписались от автора'},
-                                status=status.HTTP_204_NO_CONTENT)
-            return Response({'status': 'вы не подписаны на автора'},
-                            status=status.HTTP_400_BAD_REQUEST)
+
+            if not follow.exists():
+                return Response({'error': 'Вы не подписаны на этого автора'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            follow.delete()
+            return Response({'status': 'Вы отписались от автора'},
+                            status=status.HTTP_204_NO_CONTENT)
+
+        return Response({'error': 'Метод не поддерживается'},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
