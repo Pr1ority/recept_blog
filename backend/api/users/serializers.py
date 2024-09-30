@@ -21,6 +21,7 @@ class FollowSerializer(serializers.ModelSerializer):
     recipes_count = serializers.SerializerMethodField(
         read_only=True
     )
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -40,6 +41,13 @@ class FollowSerializer(serializers.ModelSerializer):
     def get_recipes_count(obj):
 
         return obj.recipes.count()
+    
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user_id = request.user.id
+            return Follow.objects.filter(author=obj.id, user=user_id).exists()
+        return False
 
 
 class UserCreateSerializer(UserCreateSerializer):
