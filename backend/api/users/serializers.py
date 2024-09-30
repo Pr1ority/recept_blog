@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from api.recipes.serializers import RecipeSerializer
 from recipes.models import Recipe
 from users.models import Follow
 
@@ -19,6 +18,7 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ['author', 'recipes', 'recipes_count']
 
     def get_recipes(self, obj):
+        from api.recipes.serializers import RecipeSerializer
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = Recipe.objects.filter(author=obj.author)
