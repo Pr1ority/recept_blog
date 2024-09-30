@@ -37,15 +37,17 @@ class CustomUserViewSet(UserViewSet):
 
         user = request.user
         author = get_object_or_404(User, id=id)
-        subscription_exists = Follow.objects.filter(user=user.id, author=author.id).exists()
+        subscription_exists = Follow.objects.filter(user=user.id,
+                                                    author=author.id).exists()
 
         if request.method == 'POST':
             if user == author:
                 return Response({'message': 'нельзя подписаться на самого себя'},
                                 status=status.HTTP_400_BAD_REQUEST)
             if subscription_exists:
-                return Response({'message': f'вы уже подписаны на {author.username}'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'message': f'вы уже подписаны на {author.username}'},
+                    status=status.HTTP_400_BAD_REQUEST)
             subscribe = Follow.objects.create(
                 user=user,
                 author=author
@@ -66,8 +68,10 @@ class CustomUserViewSet(UserViewSet):
         subscriptions = Follow.objects.filter(user=user)
         page = self.paginate_queryset(subscriptions)
         if page is not None:
-            serializer = FollowSerializer(page, many=True, context={'request': request})
+            serializer = FollowSerializer(page, many=True,
+                                          context={'request': request})
             return self.get_paginated_response(serializer.data)
 
-        serializer = FollowSerializer(subscriptions, many=True, context={'request': request})
+        serializer = FollowSerializer(subscriptions, many=True,
+                                      context={'request': request})
         return Response(serializer.data)
