@@ -53,28 +53,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        cart_item, created = ShoppingCart.objects.get_or_create(user=user,
-                                                                recipe=recipe)
-        if created:
-            return Response({'status': 'рецепт добавлен в список покупок'},
-                            status=status.HTTP_201_CREATED)
-        return Response({'status': 'рецепт уже в списке покупок'},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['delete'])
-    def remove_from_cart(self, request, pk=None):
-        recipe = self.get_object()
-        user = request.user
-        cart_item = ShoppingCart.objects.filter(user=user, recipe=recipe)
-        if cart_item.exists():
-            cart_item.delete()
-            return Response({'status': 'рецепт удален из списка покупок'},
+        cart_item_exist = ShoppingCart.objects.filter(recipe=recipe.id, user=user.id).exists()
+        if request.method == 'POST':
+            if not cart_item_exist:
+                cart_item = ShoppingCart.objects.create(recipe=recipe, user=user)
+                cart_item.save()
+                return Response({'status': 'рецепт добавлен в список покупок'},
+                                status=status.HTTP_201_CREATED)
+            return Response({'status': 'рецепт уже в списке покупок'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'DELETE':
+            if cart_item_exist:
+                ShoppingCart.objects.filter(recipe=recipe.id, user=user.id).delete()
+                return Response({'status': 'рецепт удален из списка покупок'},
                             status=status.HTTP_204_NO_CONTENT)
-        return Response({'status': 'рецепт не в списке покупок'},
+            return Response({'status': 'рецепт не в списке покупок'},
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
