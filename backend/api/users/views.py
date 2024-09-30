@@ -25,8 +25,8 @@ class CustomUserViewSet(UserViewSet):
         return super().get_permissions()
 
     @action(detail=True, methods=['post'])
-    def subscribe(self, request):
-        author = self.get_object()
+    def subscribe(self, request, id):
+        author = user.id=id
         user = request.user
         follow, created = Follow.objects.get_or_create(user=user,
                                                        author=author)
