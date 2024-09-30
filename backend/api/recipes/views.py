@@ -30,29 +30,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post', 'delete'])
     def favorite(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        favorite, created = Favorite.objects.get_or_create(user=user,
-                                                           recipe=recipe)
-        if created:
+        favorite_exist = Favorite.objects.filter(recipe=recipe.id, user=user.id).exists()
+
+        if request.method == 'POST':
+            if favorite_exist:
+                return Response({'status': 'рецепт уже в избранном'},
+                        status=status.HTTP_400_BAD_REQUEST)
+            favorite = Favorite.objects.create(recipe=recipe, user=user)
+            favorite.save()
             return Response({'status': 'рецепт добавлен в избранное'},
                             status=status.HTTP_201_CREATED)
-        return Response({'status': 'рецепт уже в избранном'},
+        elif request.method == 'DELETE':
+            if favorite_exist:
+                Favorite.objects.filter(user=user.id, recipe=recipe.id).delete()
+                return Response({'status': 'рецепт удален из избранного'},
+                        status=status.HTTP_204_NO_CONTENT)
+            return Response({'status': 'рецепта нет в избранном'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['delete'])
-    def unfavorite(self, request, pk=None):
-        recipe = self.get_object()
-        user = request.user
-        favorite = Favorite.objects.filter(user=user, recipe=recipe)
-        if favorite.exists():
-            favorite.delete()
-            return Response({'status': 'рецепт удален из избранного'},
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response({'status': 'рецепт не находится в избранном'},
-                        status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'])
     def shopping_cart(self, request, pk=None):

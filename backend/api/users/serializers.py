@@ -25,7 +25,8 @@ class FollowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['recipes', 'recipes_count', 'email', 'id', 'username', 'first_name', 'last_name',
+        fields = ['recipes', 'recipes_count', 'email', 'id', 'username',
+                  'first_name', 'last_name',
                   'is_subscribed',]
 
     def get_recipes(self, obj):
@@ -36,12 +37,12 @@ class FollowSerializer(serializers.ModelSerializer):
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
         return AddRecipeSerializer(recipes, many=True).data
-    
+
     @staticmethod
     def get_recipes_count(obj):
 
         return obj.recipes.count()
-    
+
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
