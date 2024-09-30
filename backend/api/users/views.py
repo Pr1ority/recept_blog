@@ -7,6 +7,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
 from rest_framework.response import Response
 
 from users.models import Follow
+from recipes.models import Recipe
 from .serializers import UserSerializer
 
 User = get_user_model()
@@ -47,3 +48,16 @@ class CustomUserViewSet(UserViewSet):
                             status=status.HTTP_204_NO_CONTENT)
         return Response({'status': 'вы не подписаны на автора'},
                         status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def subscriptions(self, request):
+        user = request.user
+        authors = user.follower.values_list('author', flat=True)
+        recipes = Recipe.objects.filter(author__in=authors)
+        page = self.paginate_queryset(recipes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(recipes, many=True)
+        return Response(serializer.data)

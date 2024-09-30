@@ -30,19 +30,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=False, methods=['get'])
-    def subscriptions(self, request):
-        user = request.user
-        authors = user.follower.values_list('author', flat=True)
-        recipes = Recipe.objects.filter(author__in=authors)
-        page = self.paginate_queryset(recipes)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(recipes, many=True)
-        return Response(serializer.data)
-
     @action(detail=True, methods=['post'])
     def favorite(self, request, pk=None):
         recipe = self.get_object()
