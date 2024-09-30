@@ -65,6 +65,11 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         user = request.user
+        if not user.is_authenticated:
+            return Response(
+                {'detail': 'Authentication credentials were not provided.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
         subscriptions = Follow.objects.filter(user=user)
         page = self.paginate_queryset(subscriptions)
         if page is not None:
