@@ -11,7 +11,8 @@ User = get_user_model()
 class FollowSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(source='author.recipes.count', read_only=True)
+    recipes_count = serializers.IntegerField(source='author.recipes.count',
+                                             read_only=True)
 
     class Meta:
         model = Follow
