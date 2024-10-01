@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 
-from backend.api.users.user_serializers import UserSerializer
+from api.users.user_serializers import UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 
