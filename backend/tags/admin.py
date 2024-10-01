@@ -5,5 +5,5 @@ from .models import Tag
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'color')
     search_fields = ('name',)
