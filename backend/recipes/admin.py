@@ -7,7 +7,7 @@ from .models import (Ingredient, Recipe, RecipeIngredient, RecipeTags,
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'pub_date')
-    search_fields = ('name', 'author__username')
+    search_fields = ('name', 'author')
     list_filter = ('tags', 'pub_date')
     empty_value_display = '-пусто-'
 
