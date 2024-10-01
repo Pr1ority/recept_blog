@@ -7,7 +7,7 @@ from .models import (Ingredient, Recipe, RecipeIngredient, RecipeTags,
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'pub_date')
-    search_fields = ('name', 'author__username')
+    search_fields = ('name', 'author', 'author__username', 'author__email')
     list_filter = ('tags', 'pub_date')
     empty_value_display = '-пусто-'
 
@@ -33,7 +33,7 @@ class RecipeTagAdmin(admin.ModelAdmin):
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user')
-    search_fields = ('recipe__name', 'user__username')
+    search_fields = ('recipe__name', 'user')
 
 
 @admin.register(Favorite)

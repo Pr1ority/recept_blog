@@ -13,6 +13,8 @@ class User(AbstractUser):
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
 
+    def __str__(self):
+        return self.username
 
 class Follow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
