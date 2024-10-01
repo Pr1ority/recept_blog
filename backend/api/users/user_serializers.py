@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
+from api.recipes.serializers import Base64ImageField
 from recipes.models import Recipe
 from users.models import Follow
 
@@ -87,7 +88,6 @@ class UserSerializer(UserSerializer):
     
 
 class AvatarSerializer(serializers.ModelSerializer):
-    from api.recipes.serializers import Base64ImageField
     avatar = Base64ImageField()
 
     class Meta:
