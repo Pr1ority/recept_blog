@@ -45,8 +45,9 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'POST':
             if user == author:
-                return Response({'message': 'нельзя подписаться на самого себя'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'message': 'нельзя подписаться на самого себя'},
+                    status=status.HTTP_400_BAD_REQUEST)
             if subscription_exists:
                 return Response(
                     {'message': f'вы уже подписаны на {author.username}'},
@@ -56,8 +57,9 @@ class CustomUserViewSet(UserViewSet):
                 author=author
             )
             subscribe.save()
-            return Response({'message': f'вы подписались на {author.username}'},
-                            status=status.HTTP_201_CREATED)
+            return Response(
+                {'message': f'вы подписались на {author.username}'},
+                status=status.HTTP_201_CREATED)
         if subscription_exists:
             Follow.objects.filter(user=user.id, author=author.id).delete()
             return Response({'message': f'вы отписались от {author.username}'},

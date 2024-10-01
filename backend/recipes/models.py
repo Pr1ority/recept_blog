@@ -91,12 +91,10 @@ class Favorite(models.Model):
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique_favorite')
         ]
+        verbose_name = 'избранное'
 
     def __str__(self):
         return f'{self.user.username} добавил {self.recipe.name} в избранное'
-
-    class Meta:
-        verbose_name = 'избранное'
 
 
 class ShoppingCart(models.Model):

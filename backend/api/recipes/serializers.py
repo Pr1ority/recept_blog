@@ -140,7 +140,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite

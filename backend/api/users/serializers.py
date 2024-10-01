@@ -28,7 +28,7 @@ class FollowSerializer(serializers.ModelSerializer):
         model = User
         fields = ['recipes', 'recipes_count', 'email', 'id', 'username',
                   'first_name', 'last_name',
-                  'is_subscribed',]
+                  'is_subscribed']
 
     def get_recipes(self, obj):
 
