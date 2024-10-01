@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from users.models import Follow
 from recipes.models import Recipe
-from .user_serializers import UserSerializer, FollowSerializer, AvatarSerializer
+from .serializers import UserSerializer, FollowSerializer, AvatarSerializer
 
 User = get_user_model()
 
