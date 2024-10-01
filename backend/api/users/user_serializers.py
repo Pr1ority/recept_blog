@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from api.recipes.serializers import Base64ImageField
+from api.fields import Base64ImageField
 from recipes.models import Recipe
 from users.models import Follow
 
