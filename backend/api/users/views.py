@@ -97,4 +97,4 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'DELETE':
             user.avatar.delete()
             user.save()
-            return Response({'detail': 'Avatar deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'detail': 'Аватар успешно удален'}, status=status.HTTP_204_NO_CONTENT)

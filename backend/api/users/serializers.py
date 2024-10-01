@@ -87,7 +87,8 @@ class UserSerializer(UserSerializer):
     
 
 class AvatarSerializer(serializers.ModelSerializer):
-    avatar = serializers.ImageField()
+    from api.recipes.serializers import Base64ImageField
+    avatar = Base64ImageField()
 
     class Meta:
         model = User
