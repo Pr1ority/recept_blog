@@ -34,33 +34,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        favorite_exist = Favorite.objects.filter(recipe=recipe.id, user=user.id).exists()
+        favorite_exist = Favorite.objects.filter(recipe=recipe.id,
+                                                 user=user.id).exists()
 
         if request.method == 'POST':
             if favorite_exist:
                 return Response({'status': 'рецепт уже в избранном'},
-                        status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_400_BAD_REQUEST)
             favorite = Favorite.objects.create(recipe=recipe, user=user)
             favorite.save()
             return Response({'status': 'рецепт добавлен в избранное'},
                             status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             if favorite_exist:
-                Favorite.objects.filter(user=user.id, recipe=recipe.id).delete()
+                Favorite.objects.filter(user=user.id,
+                                        recipe=recipe.id).delete()
                 return Response({'status': 'рецепт удален из избранного'},
-                        status=status.HTTP_204_NO_CONTENT)
+                                status=status.HTTP_204_NO_CONTENT)
             return Response({'status': 'рецепта нет в избранном'},
-                        status=status.HTTP_400_BAD_REQUEST)
-
+                            status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        cart_item_exist = ShoppingCart.objects.filter(recipe=recipe.id, user=user.id).exists()
+        cart_item_exist = ShoppingCart.objects.filter(recipe=recipe.id,
+                                                      user=user.id).exists()
         if request.method == 'POST':
             if not cart_item_exist:
-                cart_item = ShoppingCart.objects.create(recipe=recipe, user=user)
+                cart_item = ShoppingCart.objects.create(recipe=recipe,
+                                                        user=user)
                 cart_item.save()
                 return Response({'status': 'рецепт добавлен в список покупок'},
                                 status=status.HTTP_201_CREATED)
@@ -68,11 +71,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'DELETE':
             if cart_item_exist:
-                ShoppingCart.objects.filter(recipe=recipe.id, user=user.id).delete()
+                ShoppingCart.objects.filter(recipe=recipe.id,
+                                            user=user.id).delete()
                 return Response({'status': 'рецепт удален из списка покупок'},
-                            status=status.HTTP_204_NO_CONTENT)
+                                status=status.HTTP_204_NO_CONTENT)
             return Response({'status': 'рецепт не в списке покупок'},
-                        status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
@@ -103,7 +107,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = (
             'attachment; filename="shopping_list.txt"')
         return response
-    
+
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()

@@ -123,14 +123,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             user_id = request.user.id
-            return Favorite.objects.filter(user=user_id, recipe=obj.id).exists()
+            return Favorite.objects.filter(user=user_id,
+                                           recipe=obj.id).exists()
         return False
-    
+
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             user_id = request.user.id
-            return ShoppingCart.objects.filter(user=user_id, recipe=obj.id).exists()
+            return ShoppingCart.objects.filter(user=user_id,
+                                               recipe=obj.id).exists()
         return False
 
     class Meta:

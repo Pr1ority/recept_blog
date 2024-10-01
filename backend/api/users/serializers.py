@@ -85,7 +85,7 @@ class UserSerializer(UserSerializer):
             user_id = request.user.id
             return Follow.objects.filter(author=obj.id, user=user_id).exists()
         return False
-    
+
 
 class AvatarSerializer(serializers.ModelSerializer):
     avatar = Base64ImageField()
