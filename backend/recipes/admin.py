@@ -21,22 +21,22 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'ingredient', 'amount')
-    search_fields = ('recipe__title', 'ingredient__name')
+    search_fields = ('recipe__name', 'ingredient__name')
 
 
 @admin.register(RecipeTags)
 class RecipeTagAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'tag')
-    search_fields = ('recipe__title', 'tag__name')
+    search_fields = ('recipe__name', 'tag__name')
 
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user')
-    search_fields = ('recipe__title', 'user__username')
+    search_fields = ('recipe__name', 'user__username')
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user')
-    search_fields = ('recipe__title', 'user__username')
+    search_fields = ('recipe__name', 'user__username')
