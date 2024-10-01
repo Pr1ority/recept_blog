@@ -6,10 +6,15 @@ from .models import (Ingredient, Recipe, RecipeIngredient, RecipeTags,
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'pub_date')
+    list_display = ('name', 'author', 'pub_date', 'favorite_count')
     search_fields = ('name', 'author__username', 'author__email')
     list_filter = ('tags', 'pub_date')
     empty_value_display = '-пусто-'
+
+    def favorite_count(self, obj):
+        return obj.favorited_by.count()
+
+    favorite_count.short_description = 'Добавлений в избранное'
 
 
 @admin.register(Ingredient)
