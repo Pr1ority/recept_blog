@@ -5,8 +5,8 @@ from .models import User, Follow
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'avatar')
-    search_fields = ('email', 'user__username')
+    list_display = ('email', 'username')
+    search_fields = ('email', 'username')
 
 
 @admin.register(Follow)
