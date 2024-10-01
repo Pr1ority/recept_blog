@@ -6,7 +6,7 @@ from .models import User, Follow
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('email', 'avatar')
-    search_fields = ('email',)
+    search_fields = ('email', 'user__username')
 
 
 @admin.register(Follow)
