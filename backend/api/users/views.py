@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from users.models import Follow
 from recipes.models import Recipe
-from .serializers import UserSerializer, FollowSerializer
+from .serializers import UserSerializer, FollowSerializer, AvatarSerializer
 
 User = get_user_model()
 
@@ -83,3 +83,18 @@ class CustomUserViewSet(UserViewSet):
             return self.get_paginated_response(serializer.data)
         return Response('у вас нет подписок',
                         status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
+    def update_avatar(self, request):
+        user = request.user
+        if request.method == 'PUT':
+            serializer = AvatarSerializer(user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == 'DELETE':
+            user.avatar.delete()
+            user.save()
+            return Response({'detail': 'Avatar deleted successfully'}, status=status.HTTP_204_NO_CONTENT)

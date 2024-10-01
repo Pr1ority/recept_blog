@@ -84,3 +84,16 @@ class UserSerializer(UserSerializer):
             user_id = request.user.id
             return Follow.objects.filter(author=obj.id, user=user_id).exists()
         return False
+    
+
+class AvatarSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField()
+
+    class Meta:
+        model = User
+        fields = ['avatar']
+
+    def update(self, instance, validated_data):
+        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.save()
+        return instance
