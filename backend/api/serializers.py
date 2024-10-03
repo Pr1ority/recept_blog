@@ -210,8 +210,10 @@ class FollowSerializer(serializers.ModelSerializer):
     def get_recipes(self, author):
 
         request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
         recipes = author.recipes.all()
-        recipes = int(request.GET.get('recipes_limit', 10**10))
+        if limit:
+            recipes = recipes[:int(limit)]
         return RecipeForFollowSerializer(recipes, many=True).data
 
     @staticmethod
