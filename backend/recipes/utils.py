@@ -4,6 +4,7 @@ from django.db import models
 
 User = get_user_model()
 
+
 class UserRecipeBase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь')
@@ -11,7 +12,7 @@ class UserRecipeBase(models.Model):
                                verbose_name='Рецепт')
 
     class Meta:
-        abstract = True 
+        abstract = True
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique_user_recipe')
