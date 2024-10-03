@@ -13,9 +13,16 @@ User = get_user_model()
 class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
-    class Meta(DjoserUserSerializer.Meta):
-        fields = DjoserUserSerializer.Meta.fields + ('is_subscribed', 'avatar',
-                                                     'first_name', 'last_name')
+    class Meta: 
+        model = User 
+        fields = ( 
+            'id', 
+            'username', 
+            'first_name', 
+            'last_name', 
+            'email', 
+            'is_subscribed', 
+        ) 
 
     def get_is_subscribed(self, author):
         request = self.context.get('request')
