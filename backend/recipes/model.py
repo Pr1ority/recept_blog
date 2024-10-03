@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .models import Recipe
 
 User = get_user_model()
 
 class UserRecipeBase(models.Model):
+    from .models import Recipe
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
