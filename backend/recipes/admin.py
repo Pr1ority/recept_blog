@@ -17,7 +17,7 @@ class RecipeIngredientInline(admin.TabularInline):
 
 
 @admin.register(Recipe)
-class RecipeAdmin(BaseUserAdmin):
+class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'pub_date', 'favorite_count', 'id',
                     'cooking_time', 'tags_list', 'ingredients_list', 'image')
     search_fields = ('name', 'author__username', 'author__email')
@@ -78,7 +78,7 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
     list_display = ('email', 'username', 'id', 'first_name', 'last_name',
                     'avatar', 'follows_count', 'followers_count',
                     'recipes_count')
