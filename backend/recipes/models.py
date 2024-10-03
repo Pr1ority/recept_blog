@@ -54,7 +54,7 @@ class Recipe(models.Model):
                                   verbose_name='Теги')
     cooking_time = models.PositiveIntegerField(
         help_text='Время в минутах', verbose_name='Время приготовления',
-        validators=validate_cooking_time)
+        validators=[validate_cooking_time])
     pub_date = models.DateTimeField(auto_now_add=True,
                                     verbose_name='Дата публикации')
 
@@ -76,7 +76,7 @@ class RecipeIngredient(models.Model):
                                    verbose_name='Продукт',
                                    related_name='in_recipe')
     amount = models.PositiveIntegerField('Количество',
-                                         validators=validate_ingredients)
+                                         validators=[validate_ingredients])
 
     def __str__(self):
         return f'{self.amount} {self.ingredient.name} для {self.recipe.name}'
