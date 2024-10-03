@@ -167,7 +167,7 @@ class UserViewSet(DjoserUserViewSet):
                 {'message': f'вы подписались на {author.username}'},
                 status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            get_object_or_404(Follow, user=user.id, recipe=author.id).delete()
+            get_object_or_404(Follow, user=user.id, author=author.id).delete()
             return Response({'message': f'вы отписались от {author.username}'},
                             status=status.HTTP_204_NO_CONTENT)
 
@@ -178,7 +178,7 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
 
-        queryset = User.objects.filter(following__user=self.request.user)
+        queryset = User.objects.filter(followings__user=self.request.user)
         if queryset:
             pages = self.paginate_queryset(queryset)
             serializer = FollowSerializer(pages, many=True,
@@ -204,7 +204,7 @@ class UserViewSet(DjoserUserViewSet):
 
 
 def get_recipe_short_link(request, recipe_id):
-    
+
     recipe = get_object_or_404(Recipe, id=recipe_id)
 
     recipe_uid = urlsafe_base64_encode(force_bytes(recipe.id))
