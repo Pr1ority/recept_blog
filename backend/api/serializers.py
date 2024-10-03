@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from djoser.serializers import UserSerializer as DjoserUserSerializer
+from djoser.serializers import (
+    UserSerializer as DjoserUserSerializer,
+    UserCreateSerializer as DjoserUserCreateSerializer)
 
 from api.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -13,16 +15,16 @@ User = get_user_model()
 class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
-    class Meta: 
-        model = User 
-        fields = ( 
-            'id', 
-            'username', 
-            'first_name', 
-            'last_name', 
-            'email', 
-            'is_subscribed', 
-        ) 
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'is_subscribed',
+        )
 
     def get_is_subscribed(self, author):
         request = self.context.get('request')
@@ -31,6 +33,21 @@ class UserSerializer(DjoserUserSerializer):
             return Follow.objects.filter(author=author.id,
                                          user=user_id).exists()
         return False
+
+
+class UserCreateSerializer(DjoserUserCreateSerializer):
+
+    class Meta:
+
+        model = User
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+        )
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
