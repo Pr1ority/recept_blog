@@ -90,6 +90,7 @@ class Favorite(UserRecipeBase):
 
     class Meta:
         verbose_name = 'избранное'
+        default_related_name = 'favorited'
 
 
 class ShoppingCart(UserRecipeBase):
