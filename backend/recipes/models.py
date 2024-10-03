@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-from .model import UserRecipeBase
+from .utils import UserRecipeBase
 from .validators import validate_cooking_time, validate_ingredients
 
 
