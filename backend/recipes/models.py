@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
@@ -6,7 +5,33 @@ from django.db import models
 from .model import UserRecipeBase
 from .validators import validate_cooking_time, validate_ingredients
 
-User = get_user_model()
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True, verbose_name='Почта',
+                              max_length=254)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True,
+                               verbose_name='Аватар')
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+\z',
+            message=('Ник содержит недопустимые символы.'
+                     ' Допустимы только буквы, цифры, и символы @/./+/-/_.'),
+        )],
+        verbose_name='Имя пользователя'
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    class Meta:
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('username',)
+
+    def __str__(self):
+        return self.username
 
 
 class Tag(models.Model):
@@ -97,34 +122,6 @@ class ShoppingCart(UserRecipeBase):
 
     class Meta:
         verbose_name = 'список покупок'
-
-
-class User(AbstractUser):
-    email = models.EmailField(unique=True, verbose_name='Почта',
-                              max_length=254)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True,
-                               verbose_name='Аватар')
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+\z',
-            message=('Ник содержит недопустимые символы.'
-                     ' Допустимы только буквы, цифры, и символы @/./+/-/_.'),
-        )],
-        verbose_name='Имя пользователя'
-    )
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
-    class Meta:
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'Пользователи'
-        ordering = ('username',)
-
-    def __str__(self):
-        return self.username
 
 
 class Follow(models.Model):
