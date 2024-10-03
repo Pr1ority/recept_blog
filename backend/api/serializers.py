@@ -96,6 +96,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
+        validated_data.pop('author', None)
         unique_tags = set(tags)
         if len(unique_tags) != len(tags):
             raise ValidationError('Теги не должны повторяться.')
