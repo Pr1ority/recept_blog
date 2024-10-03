@@ -19,7 +19,7 @@ class RecipeIngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(BaseUserAdmin):
     list_display = ('name', 'author', 'pub_date', 'favorite_count', 'id',
-                    'cooking_time', 'tags', 'ingredients', 'image')
+                    'cooking_time', 'tags_list', 'ingredients_list', 'image')
     search_fields = ('name', 'author__username', 'author__email')
     list_filter = ('tags', 'author', 'cooking_time')
     empty_value_display = '-пусто-'
@@ -112,7 +112,7 @@ class FollowAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'color')
+    list_display = ('name', 'slug')
     search_fields = ('name',)
 
 
