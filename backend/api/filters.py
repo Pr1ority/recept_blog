@@ -11,10 +11,10 @@ class RecipeFilter(django_filters.FilterSet):
     is_in_shopping_cart = django_filters.BooleanFilter(
         method='filter_is_in_shopping_cart')
 
-    def filter_is_in_shopping_cart(self, queryset, name, value):
+    def filter_is_in_shopping_cart(self, recipe, name, value):
         if value:
-            return queryset.filter(in_shopping_list_by__user=self.request.user)
-        return queryset
+            return recipe.filter(in_shopping_list_by__user=self.request.user)
+        return recipe
 
     class Meta:
         model = Recipe
