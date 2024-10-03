@@ -12,7 +12,7 @@ class User(AbstractUser):
         max_length=150,
         unique=True,
         validators=[RegexValidator(
-            regex=r'^[\w.@+-]+\z',
+            regex=r'^[\w.@+-]+$',
             message=('Ник содержит недопустимые символы.'
                      ' Допустимы только буквы, цифры, и символы @/./+/-/_.'),
         )],
