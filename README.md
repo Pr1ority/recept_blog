@@ -1,3 +1,5 @@
+![Workflow Status](https://github.com/Pr1ority/foodgram/actions/workflows/main.yml/badge.svg?branch=main)
+
 ## Описание проекта
 
 Foodgram — это веб-приложение, которое позволяет пользователям публиковать рецепты, делиться ими с другими, добавлять рецепты в избранное и формировать списки покупок на основе ингредиентов. Также есть возможность подписываться на других пользователей, отслеживать их рецепты и управлять избранным.
@@ -63,7 +65,7 @@ docker-compose exec backend python manage.py migrate
 docker-compose exec backend python manage.py createsuperuser
 ```
 ```bash
-docker-compose exec backend python manage.py loaddata ingredients.json
+docker-compose exec backend python manage.py import_ingredients
 ```
 7. Соберите статику
 ```bash
@@ -117,10 +119,10 @@ python manage.py createsuperuser
 ```
 6. Импортируйте фикстуры
 ```bash
-python manage.py loaddata ingredients.json
+python manage.py loaddata import_ingredients
 ```
 7. Запустите сервер
 ```bash
 python manage.py runserver
 ```
-8. [Спецификация API](http://localhost/api/docs/)
+8. [Спецификация API](http://localhost/api/docs/redoc.html)

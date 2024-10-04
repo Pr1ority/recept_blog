@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
+COOKING_TIME_MIN_VALUE = 1
+AMOUNT_MIN_VALUE = 1
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, verbose_name='Почта',
@@ -38,13 +40,17 @@ class User(AbstractUser):
 class UserRecipeBase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь',
-                             related_name='%(class)s_user')
+                             related_name='%(class)ss')
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE,
                                verbose_name='Рецепт',
-                               related_name='%(class)s_recipe')
+                               related_name='%(class)ss')
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_constraint')
+        ]
 
     def __str__(self):
         return f'{self.user.username} добавил {self.recipe.name}'
@@ -97,9 +103,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         help_text='Время в минутах',
         verbose_name='Время приготовления в минутах',
-        validators=[MinValueValidator(1,
-                                      'Время не может быть меньше одной минуты'
-                                      )])
+        validators=[
+            MinValueValidator(
+                COOKING_TIME_MIN_VALUE,
+                f'Время не может быть меньше {COOKING_TIME_MIN_VALUE}')])
     pub_date = models.DateTimeField(auto_now_add=True,
                                     verbose_name='Дата публикации')
 
@@ -119,11 +126,12 @@ class RecipeIngredient(models.Model):
                                related_name='recipe_ingredients')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,
                                    verbose_name='Продукт',
-                                   related_name='in_recipe')
+                                   related_name='in_recipes')
     amount = models.PositiveIntegerField(
         'Количество',
         validators=[MinValueValidator(
-            1, 'Количество продукта не может быть меньше одного')])
+            AMOUNT_MIN_VALUE,
+            f'Количество продукта не может быть меньше {AMOUNT_MIN_VALUE}')])
 
     def __str__(self):
         return f'{self.amount} {self.ingredient.name} для {self.recipe.name}'
@@ -138,10 +146,6 @@ class Favorite(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
         verbose_name = 'избранное'
         verbose_name_plural = 'Избранные'
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_favorite')
-        ]
 
 
 class ShoppingCart(UserRecipeBase):
@@ -149,10 +153,6 @@ class ShoppingCart(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
         verbose_name = 'список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_shopping_cart')
-        ]
 
 
 class Follow(models.Model):

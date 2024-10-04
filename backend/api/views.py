@@ -42,8 +42,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @staticmethod
-    def create_delete_manage(request, model, recipe, user, success_add_message,
-                             success_remove_message):
+    def update_user_recipe_status(request, model, recipe, user,
+                                  success_add_message, success_remove_message):
 
         if request.method == 'POST':
             _, created = model.objects.get_or_create(recipe=recipe,
@@ -113,8 +113,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='get-link',
     )
     def get_recipe_short_link(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, id=pk)
-        recipe_uid = str((recipe.id))
+        recipe_exists = Recipe.objects.filter(id=pk).exists()
+        if not recipe_exists:
+            return JsonResponse({'error': 'Рецепт не найден'}, status=404)
+        
+        recipe_uid = str(pk)
         short_link = f'{request.build_absolute_uri("/")[:-1]}/r/{recipe_uid}/'
         return JsonResponse({'short_link': short_link})
 

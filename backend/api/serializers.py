@@ -99,10 +99,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         validated_data.pop('author', None)
-        self.validate_unique_items(tags, 'Теги не должны повторяться.')
-        self.validate_unique_items(
-            [ingredient['id'] for ingredient in ingredients],
-            'Ингредиенты не должны повторяться.')
+        self._validate_tags_and_ingredients(tags, ingredients)
         recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
         self.tags_and_ingredients_set(recipe, tags, ingredients)
@@ -111,14 +108,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         tags_data = validated_data.pop('tags', None)
         ingredients_data = validated_data.pop('ingredients', None)
-
-        if tags_data:
-            self.validate_unique_items(
-                tags_data, 'Теги не должны повторяться.')
+        self._validate_tags_and_ingredients(tags_data, ingredients_data)
         if ingredients_data:
-            self.validate_unique_items(
-                [ingredient['id'] for ingredient in ingredients_data],
-                'Ингредиенты не должны повторяться.')
             instance.ingredients.clear()
 
         self.tags_and_ingredients_set(instance,
@@ -130,6 +121,16 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         unique_items = set(items)
         if len(unique_items) != len(items):
             raise ValidationError(error_message)
+
+    def _validate_tags_and_ingredients(self, tags, ingredients):
+        """Проверка на уникальность тегов и ингредиентов."""
+        if tags:
+            self.validate_unique_items(tags, 'Теги не должны повторяться.')
+        if ingredients:
+            self.validate_unique_items(
+                [ingredient['id'] for ingredient in ingredients],
+                'Ингредиенты не должны повторяться.'
+            )
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -189,8 +190,8 @@ class FollowSerializer(serializers.ModelSerializer):
             limit = int(limit)
             if limit < 0:
                 raise ValidationError(
-                    'Параметр "recipes_limit"'
-                    'должен быть неотрицательным числом.')
+                    'Параметр "recipes_limit" должен быть положительным'
+                    'числом или равным нулю.')
         except ValueError:
             raise ValidationError(
                 'Параметр "recipes_limit" должен быть целым числом.')
