@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from djoser.serializers import (
-    UserSerializer as DjoserUserSerializer,
-    UserCreateSerializer as DjoserUserCreateSerializer)
+from djoser.serializers import UserSerializer as DjoserUserSerializer
 from rest_framework import serializers
 
 from api.fields import Base64ImageField
@@ -123,7 +121,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 'Ингредиенты не должны повторяться.')
             instance.ingredients.clear()
 
-        self.tags_and_ingredients_set(instance, tags_data or instance.tags.all(), ingredients_data)
+        self.tags_and_ingredients_set(instance, tags_data or instance.tags.all(),
+                                      ingredients_data)
         return super().update(instance, validated_data)
 
     def validate_unique_items(self, items, error_message):
