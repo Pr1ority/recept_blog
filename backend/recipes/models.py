@@ -138,7 +138,6 @@ class Favorite(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
         verbose_name = 'избранное'
         verbose_name_plural = 'Избранные'
-        default_related_name = 'favorites'
         constraints = [
             models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique_favorite')

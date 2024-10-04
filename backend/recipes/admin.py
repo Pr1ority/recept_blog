@@ -27,7 +27,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='в избранном')
     def favorite_count(self, recipe):
-        return recipe.favorites.count()
+        return recipe.favorites_recipe.count()
 
     @admin.display(description='Теги')
     @mark_safe
