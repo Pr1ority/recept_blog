@@ -18,8 +18,10 @@ class User(AbstractUser):
         )],
         verbose_name='Имя пользователя'
     )
-    first_name = models.CharField(max_length=150, verbose_name='Имя', blank=True)
-    last_name = models.CharField(max_length=150, verbose_name='Фамилия', blank=True)
+    first_name = models.CharField(max_length=150, verbose_name='Имя',
+                                  blank=True)
+    last_name = models.CharField(max_length=150, verbose_name='Фамилия',
+                                 blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
