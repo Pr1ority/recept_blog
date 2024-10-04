@@ -34,10 +34,10 @@ class User(AbstractUser):
 class UserRecipeBase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь',
-                             related_name='user_recipes')
+                             related_name='%(class)s_user')
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE,
                                verbose_name='Рецепт',
-                               related_name='user_recipe_relations')
+                               related_name='%(class)s_recipe')
 
     class Meta:
         abstract = True
