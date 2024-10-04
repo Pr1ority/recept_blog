@@ -5,6 +5,7 @@ from django.db import models
 COOKING_TIME_MIN_VALUE = 1
 AMOUNT_MIN_VALUE = 1
 
+
 class User(AbstractUser):
     email = models.EmailField(unique=True, verbose_name='Почта',
                               max_length=254)
