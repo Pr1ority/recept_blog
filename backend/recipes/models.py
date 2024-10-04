@@ -47,10 +47,6 @@ class UserRecipeBase(models.Model):
 
     class Meta:
         abstract = True
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_constraint')
-        ]
 
     def __str__(self):
         return f'{self.user.username} добавил {self.recipe.name}'
@@ -146,6 +142,10 @@ class Favorite(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
         verbose_name = 'избранное'
         verbose_name_plural = 'Избранные'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_favorite')
+        ]
 
 
 class ShoppingCart(UserRecipeBase):
@@ -153,6 +153,10 @@ class ShoppingCart(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
         verbose_name = 'список покупок'
         verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_shopping_cart')
+        ]
 
 
 class Follow(models.Model):
