@@ -121,9 +121,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             self.validate_unique_items(
                 [ingredient['id'] for ingredient in ingredients_data],
                 'Ингредиенты не должны повторяться.')
+            instance.ingredients.clear()
 
-        self.tags_and_ingredients_set(instance, ingredients_data, tags_data)
-
+        self.tags_and_ingredients_set(instance, tags_data or instance.tags.all(), ingredients_data)
         return super().update(instance, validated_data)
 
     def validate_unique_items(self, items, error_message):
