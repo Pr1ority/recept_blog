@@ -97,7 +97,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             raise ValidationError({'status': 'Ваш список покупок пуст'})
 
         ingredients = RecipeIngredient.objects.filter(
-            recipe__in=shopping_cart('recipe', flat=True)).values(
+            recipe__in=shopping_cart.values_list('recipe', flat=True)).values(
             'ingredient__name',
             'ingredient__measurement_unit').annotate(total_amount=Sum('amount')
                                                      )
