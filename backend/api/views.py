@@ -45,11 +45,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def create_delete_manage(request, model, recipe, user, success_add_message,
-                        success_remove_message):
+                             success_remove_message):
 
         if request.method == 'POST':
             _, created = model.objects.get_or_create(recipe=recipe,
-                                                       user=user)
+                                                     user=user)
             if not created:
                 raise ValidationError(
                     {'status': f'рецепт уже {success_add_message}'})
@@ -67,7 +67,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        return self.manage_relation(
+        return self.create_delete_manage(
             request=request,
             model=Favorite,
             recipe=recipe,
@@ -80,7 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        return self.manage_relation(
+        return self.create_delete_manage(
             request=request,
             model=ShoppingCart,
             recipe=recipe,
@@ -148,8 +148,7 @@ class UserViewSet(DjoserUserViewSet):
 
         if self.action == 'me':
             return [IsAuthenticated()]
-        else:
-            return super().get_permissions()
+        return super().get_permissions()
 
 
     @action(
@@ -166,7 +165,7 @@ class UserViewSet(DjoserUserViewSet):
 
         if request.method == 'POST':
             _, created = Follow.objects.get_or_create(author=author,
-                                                        user=user)
+                                                      user=user)
             if user == author:
                 raise ValidationError(
                     {'status': 'нельзя подписаться на самого себя'})
@@ -179,7 +178,7 @@ class UserViewSet(DjoserUserViewSet):
 
         get_object_or_404(Follow, user=user.id, author=author.id).delete()
         return Response({'message': f'вы отписались от {author.username}'},
-                            status=status.HTTP_204_NO_CONTENT)
+                        status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
@@ -191,12 +190,12 @@ class UserViewSet(DjoserUserViewSet):
         queryset = User.objects.filter(authors__user=self.request.user)
         if not queryset:
             raise ValidationError({'status': 'у вас нет подписок'})
-        
+
         pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(pages, many=True,
-                                          context={'request': request})
+                                      context={'request': request})
         return self.get_paginated_response(serializer.data)
-    
+
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def update_avatar(self, request):
         user = request.user
