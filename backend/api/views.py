@@ -65,7 +65,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        return self.create_delete_manage(
+        return self.update_user_recipe_status(
             request=request,
             model=Favorite,
             recipe=recipe,
@@ -78,7 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
         user = request.user
-        return self.create_delete_manage(
+        return self.update_user_recipe_status(
             request=request,
             model=ShoppingCart,
             recipe=recipe,
@@ -116,7 +116,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe_exists = Recipe.objects.filter(id=pk).exists()
         if not recipe_exists:
             return JsonResponse({'error': 'Рецепт не найден'}, status=404)
-        
+
         recipe_uid = str(pk)
         short_link = f'{request.build_absolute_uri("/")[:-1]}/r/{recipe_uid}/'
         return JsonResponse({'short_link': short_link})
