@@ -104,8 +104,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         recipes = Recipe.objects.filter(
             id__in=shopping_cart.values_list('recipe', flat=True))
-        return FileResponse(render_shopping_list(ingredients, recipes), content_type='text/plain', filename='shopping_list.txt')
-    
+        return FileResponse(render_shopping_list(ingredients, recipes),
+                            content_type='text/plain',
+                            filename='shopping_list.txt')
+
     @action(
         detail=True,
         methods=('get'),
@@ -115,7 +117,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_recipe_short_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         recipe_uid = str((recipe.id))
-        short_link = f'{request.build_absolute_uri('/')[:-1]}/r/{recipe_uid}/'
+        short_link = f'{request.build_absolute_uri("/")[:-1]}/r/{recipe_uid}/'
         return JsonResponse({'short_link': short_link})
 
 
