@@ -33,16 +33,14 @@ class User(AbstractUser):
 
 class UserRecipeBase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             verbose_name='Пользователь', related_name='user_recipes')
+                             verbose_name='Пользователь',
+                             related_name='user_recipes')
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE,
-                               verbose_name='Рецепт', related_name='user_recipe_relations')
+                               verbose_name='Рецепт',
+                               related_name='user_recipe_relations')
 
     class Meta:
         abstract = True
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
-                                    name='unique_user_recipe_base')
-        ]
 
     def __str__(self):
         return f'{self.user.username} добавил {self.recipe.name}'
@@ -137,6 +135,10 @@ class Favorite(UserRecipeBase):
         verbose_name = 'избранное'
         verbose_name_plural = 'Избранные'
         default_related_name = 'favorites'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_favorite')
+        ]
 
 
 class ShoppingCart(UserRecipeBase):
@@ -144,6 +146,10 @@ class ShoppingCart(UserRecipeBase):
     class Meta(UserRecipeBase.Meta):
         verbose_name = 'список покупок'
         verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_shopping_cart')
+        ]
 
 
 class Follow(models.Model):
