@@ -57,16 +57,13 @@ docker-compose -f docker-compose.production.yml up -d
 ```
 6. Подготовьте базу данных
 ```bash
-docker-compose exec backend python manage.py makemigrations
-```
-```bash
 docker-compose exec backend python manage.py migrate
 ```
 ```bash
 docker-compose exec backend python manage.py createsuperuser
 ```
 ```bash
-docker-compose exec backend python manage.py loaddata data.json
+docker-compose exec backend python manage.py loaddata ingredients.json
 ```
 7. Соберите статику
 ```bash
@@ -120,7 +117,7 @@ python manage.py createsuperuser
 ```
 6. Импортируйте фикстуры
 ```bash
-python manage.py loaddata data.json
+python manage.py loaddata ingredients.json
 ```
 7. Запустите сервер
 ```bash

@@ -4,7 +4,7 @@ from api.permissions import IsAuthorOrReadOnlyPermission
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import FileResponse, JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -44,11 +44,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @staticmethod
-    def manage_relation(request, model, recipe, user, success_add_message,
+    def create_delete_manage(request, model, recipe, user, success_add_message,
                         success_remove_message):
 
         if request.method == 'POST':
-            obj, created = model.objects.get_or_create(recipe=recipe,
+            _, created = model.objects.get_or_create(recipe=recipe,
                                                        user=user)
             if not created:
                 raise ValidationError(
@@ -97,18 +97,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
             raise ValidationError({'status': 'Ваш список покупок пуст'})
 
         ingredients = RecipeIngredient.objects.filter(
-            recipe__in=shopping_cart.values_list('recipe', flat=True)).values(
+            recipe__in=shopping_cart('recipe', flat=True)).values(
             'ingredient__name',
             'ingredient__measurement_unit').annotate(total_amount=Sum('amount')
                                                      )
 
         recipes = Recipe.objects.filter(
             id__in=shopping_cart.values_list('recipe', flat=True))
-        content = render_shopping_list(ingredients, recipes)
-        response = HttpResponse(content, content_type='text/plain')
-        response['Content-Disposition'] = (
-            'attachment; filename="shopping_list.txt"')
-        return response
+        return FileResponse(render_shopping_list(ingredients, recipes), content_type='text/plain', filename='shopping_list.txt')
+    
+    @action(
+        detail=True,
+        methods=('get'),
+        url_path='get-link',
+        url_name='get-link',
+    )
+    def get_recipe_short_link(self, request, pk=None):
+        recipe = get_object_or_404(Recipe, id=pk)
+        recipe_uid = str((recipe.id))
+        short_link = f'{request.build_absolute_uri('/')[:-1]}/r/{recipe_uid}/'
+        return JsonResponse({'short_link': short_link})
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -135,12 +143,12 @@ class UserViewSet(DjoserUserViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_permissions(self):
-        if self.action in ['create', 'list']:
-            return [AllowAny()]
-        elif self.action == 'me':
+
+        if self.action == 'me':
             return [IsAuthenticated()]
         else:
-            return [IsAuthenticatedOrReadOnly()]
+            return super().get_permissions()
+
 
     @action(
         detail=True,
@@ -155,7 +163,7 @@ class UserViewSet(DjoserUserViewSet):
         author = get_object_or_404(User, id=id)
 
         if request.method == 'POST':
-            obj, created = Follow.objects.get_or_create(author=author,
+            _, created = Follow.objects.get_or_create(author=author,
                                                         user=user)
             if user == author:
                 raise ValidationError(
@@ -166,9 +174,9 @@ class UserViewSet(DjoserUserViewSet):
             return Response(
                 {'message': f'вы подписались на {author.username}'},
                 status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            get_object_or_404(Follow, user=user.id, author=author.id).delete()
-            return Response({'message': f'вы отписались от {author.username}'},
+
+        get_object_or_404(Follow, user=user.id, author=author.id).delete()
+        return Response({'message': f'вы отписались от {author.username}'},
                             status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -178,14 +186,15 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
 
-        queryset = User.objects.filter(followings__user=self.request.user)
-        if queryset:
-            pages = self.paginate_queryset(queryset)
-            serializer = FollowSerializer(pages, many=True,
+        queryset = User.objects.filter(authors__user=self.request.user)
+        if not queryset:
+            raise ValidationError({'status': 'у вас нет подписок'})
+        
+        pages = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(pages, many=True,
                                           context={'request': request})
-            return self.get_paginated_response(serializer.data)
-        raise ValidationError({'status': 'у вас нет подписок'})
-
+        return self.get_paginated_response(serializer.data)
+    
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def update_avatar(self, request):
         user = request.user
@@ -196,19 +205,7 @@ class UserViewSet(DjoserUserViewSet):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             raise ValidationError({'status': 'не удалось обновить аватар'})
 
-        if request.method == 'DELETE':
-            user.avatar.delete()
-            user.save()
-            return Response({'detail': 'Аватар успешно удален'},
-                            status=status.HTTP_204_NO_CONTENT)
-
-
-def get_recipe_short_link(request, recipe_id):
-
-    recipe = get_object_or_404(Recipe, id=recipe_id)
-
-    recipe_uid = urlsafe_base64_encode(force_bytes(recipe.id))
-
-    short_link = f"{request.build_absolute_uri('/')[:-1]}/r/{recipe_uid}/"
-
-    return JsonResponse({'short_link': short_link})
+        user.avatar.delete()
+        user.save()
+        return Response({'detail': 'Аватар успешно удален'},
+                        status=status.HTTP_204_NO_CONTENT)

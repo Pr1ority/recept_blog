@@ -7,11 +7,11 @@ def render_shopping_list(ingredients, recipes):
 
     product_header = "Список продуктов:"
     product_list = [
-        f'{idx + 1}.'
+        f'{index}.'
         f' {ingredient["ingredient__name"].capitalize()}'
         f'— {ingredient["total_amount"]}'
         f' {ingredient["ingredient__measurement_unit"]}'
-        for idx, ingredient in enumerate(ingredients)
+        for index, ingredient in enumerate(ingredients, 1)
     ]
 
     recipe_header = 'Рецепты, для которых составлен список покупок:'

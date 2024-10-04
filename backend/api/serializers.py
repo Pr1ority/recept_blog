@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
 from djoser.serializers import (
     UserSerializer as DjoserUserSerializer,
     UserCreateSerializer as DjoserUserCreateSerializer)
+from rest_framework import serializers
 
 from api.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -15,16 +15,9 @@ User = get_user_model()
 class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
-    class Meta:
+    class Meta(DjoserUserSerializer.Meta):
         model = User
-        fields = (
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'is_subscribed',
-        )
+        fields = DjoserUserSerializer.Meta.fields + ('is_subscribed',)
 
     def get_is_subscribed(self, author):
         request = self.context.get('request')
@@ -35,27 +28,12 @@ class UserSerializer(DjoserUserSerializer):
         return False
 
 
-class UserCreateSerializer(DjoserUserCreateSerializer):
-
-    class Meta:
-
-        model = User
-        fields = (
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'password',
-        )
-
-
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount']
+        fields = ('id', 'amount', )
 
     def to_representation(self, instance):
         ingredient = instance.ingredient
@@ -91,7 +69,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount', 'name', 'measurement_unit']
+        fields = ('id', 'amount', 'name', 'measurement_unit',)
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
@@ -112,25 +90,20 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)
-        RecipeIngredient.objects.bulk_create([RecipeIngredient(
+        RecipeIngredient.objects.bulk_create(RecipeIngredient(
             recipe=recipe,
             ingredient_id=ingredient['id'],
             amount=ingredient['amount'])
-            for ingredient in ingredients])
+            for ingredient in ingredients)
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         validated_data.pop('author', None)
-        unique_tags = set(tags)
-        if len(unique_tags) != len(tags):
-            raise ValidationError('Теги не должны повторяться.')
-
-        ingredient_ids = [ingredient['id'] for ingredient in ingredients]
-        unique_ingredient_ids = set(ingredient_ids)
-        if len(unique_ingredient_ids) != len(ingredient_ids):
-            raise ValidationError('Ингредиенты не должны повторяться.')
-
+        self.validate_unique_items(tags, 'Теги не должны повторяться.')
+        self.validate_unique_items(
+            [ingredient['id'] for ingredient in ingredients],
+            'Ингредиенты не должны повторяться.')
         recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
         self.tags_and_ingredients_set(recipe, tags, ingredients)
@@ -140,22 +113,22 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags_data = validated_data.pop('tags', None)
         ingredients_data = validated_data.pop('ingredients', None)
 
-        unique_tags = set(tags_data)
-        if len(unique_tags) != len(tags_data):
-            raise ValidationError('Теги не должны повторяться.')
+        if tags_data:
+            self.validate_unique_items(
+                tags_data, 'Теги не должны повторяться.')
+        if ingredients_data:
+            self.validate_unique_items(
+                [ingredient['id'] for ingredient in ingredients_data],
+                'Ингредиенты не должны повторяться.')
 
-        ingredient_ids = [ingredient['id'] for ingredient in ingredients_data]
-        unique_ingredient_ids = set(ingredient_ids)
-        if len(unique_ingredient_ids) != len(ingredient_ids):
-            raise ValidationError('Ингредиенты не должны повторяться.')
+        self.tags_and_ingredients_set(instance, ingredients_data, tags_data)
 
-        instance = super().update(instance, validated_data)
-        if tags_data is not None:
-            instance.tags.set(tags_data)
-        instance.ingredients.clear()
-        self.tags_and_ingredients_set(instance, ingredients_data)
+        return super().update(instance, validated_data)
 
-        return instance
+    def validate_unique_items(self, items, error_message):
+        unique_items = set(items)
+        if len(unique_items) != len(items):
+            raise ValidationError(error_message)
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -186,7 +159,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                     user=request.user.id, recipe=recipe.id).exists())
 
 
-class RecipeForFollowSerializer(serializers.ModelSerializer):
+class RecipeShortSerializer(serializers.ModelSerializer):
 
     class Meta:
 
@@ -203,18 +176,28 @@ class FollowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['recipes', 'recipes_count', 'email', 'id', 'username',
+        fields = ('recipes', 'recipes_count', 'email', 'id', 'username',
                   'first_name', 'last_name',
-                  'is_subscribed']
+                  'is_subscribed')
 
     def get_recipes(self, author):
 
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
+        try:
+            limit = int(limit)
+            if limit < 0:
+                raise ValidationError(
+                    'Параметр "recipes_limit"'
+                    'должен быть неотрицательным числом.')
+        except ValueError:
+            raise ValidationError(
+                'Параметр "recipes_limit" должен быть целым числом.')
+
         recipes = author.recipes.all()
         if limit:
             recipes = recipes[:int(limit)]
-        return RecipeForFollowSerializer(recipes, many=True).data
+        return RecipeShortSerializer(recipes, many=True).data
 
     @staticmethod
     def get_recipes_count(author):
@@ -235,4 +218,4 @@ class AvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['avatar']
+        fields = ('avatar', )

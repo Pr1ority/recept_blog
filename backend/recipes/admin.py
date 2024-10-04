@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from django.utils.safestring import mark_safe
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.safestring import mark_safe
 
 from .models import (Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Favorite, Follow, Tag)
@@ -21,29 +21,31 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'pub_date', 'favorite_count', 'id',
                     'cooking_time', 'tags_list', 'ingredients_list', 'image')
     search_fields = ('name', 'author__username', 'author__email')
-    list_filter = ('tags', 'author', 'cooking_time')
+    list_filter = ('tags', 'author')
     empty_value_display = '-пусто-'
     inlines = [RecipeIngredientInline]
 
-    @admin.display(description='Добавлений в избранное')
+    @admin.display(description='в избранном')
     def favorite_count(self, recipe):
         return recipe.favorited.count()
 
     @admin.display(description='Теги')
     @mark_safe
     def tags_list(self, recipe):
-        tags = recipe.tags.all()
-        return ', '.join(
-            [f'<span style="background-color: #add8e6;">{tag.name}</span>'
-                for tag in tags])
+        return '<br>'.join(
+            f'<span style="background-color: #add8e6;">{tag.name}'
+            for tag in recipe.tags.all())
 
     @admin.display(description='Продукты')
     @mark_safe
     def ingredients_list(self, recipe):
-        ingredients = recipe.ingredients.all()
-        return ', '.join(
-            [f'{ingredient.name} ({ingredient.measurement_unit})'
-                for ingredient in ingredients])
+        return '<br>'.join(
+            f'{recipe_ingredient.ingredient.name} '
+            f'({recipe_ingredient.ingredient.measurement_unit}) — '
+            f'{recipe_ingredient.amount}'
+            for recipe_ingredient
+            in recipe.recipe_ingredients.select_related('ingredient')
+        )
 
     @admin.display(description='Изображение')
     @mark_safe
@@ -84,15 +86,15 @@ class UserAdmin(BaseUserAdmin):
                     'recipes_count')
     search_fields = ('email', 'username')
 
-    @admin.display(description='Количество подписок')
+    @admin.display(description='подписок')
     def follows_count(self, user):
-        return user.followings.count()
+        return user.authors.count()
 
-    @admin.display(description='Количество подписчиков')
+    @admin.display(description='подписчиков')
     def followers_count(self, user):
         return user.followers.count()
 
-    @admin.display(description='Количество рецептов')
+    @admin.display(description='рецептов')
     def recipes_count(self, user):
         return user.recipes.count()
 

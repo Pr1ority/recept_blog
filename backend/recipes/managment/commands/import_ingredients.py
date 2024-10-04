@@ -10,10 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         with open('data/ingredients.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
-            for item in data:
-                Ingredient.objects.get_or_create(
-                    name=item['name'],
-                    measurement_unit=item['measurement_unit']
-                )
+            Ingredient.objects.bulk_create(Ingredient(**item)
+                                           for item in data)
         self.stdout.write(self.style.SUCCESS(
             'Ингредиенты успешно импортированы'))

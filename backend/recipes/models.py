@@ -1,11 +1,51 @@
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
-from django.contrib.auth import get_user_model
-
-from .utils import UserRecipeBase
-from .validators import validate_cooking_time, validate_ingredients
 
 
-User = get_user_model()
+class User(AbstractUser):
+    email = models.EmailField(unique=True, verbose_name='Почта',
+                              max_length=254)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True,
+                               verbose_name='Аватар')
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+$',
+            message=('Ник содержит недопустимые символы.'
+                     ' Допустимы только буквы, цифры, и символы @/./+/-/_.'),
+        )],
+        verbose_name='Имя пользователя'
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    class Meta:
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('username',)
+
+    def __str__(self):
+        return self.username
+
+
+class UserRecipeBase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             verbose_name='Пользователь', related_name='user_recipes')
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE,
+                               verbose_name='Рецепт', related_name='user_recipe_relations')
+
+    class Meta:
+        abstract = True
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique_user_recipe_base')
+        ]
+
+    def __str__(self):
+        return f'{self.user.username} добавил {self.recipe.name}'
 
 
 class Tag(models.Model):
@@ -53,8 +93,11 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(Tag,
                                   verbose_name='Теги')
     cooking_time = models.PositiveIntegerField(
-        help_text='Время в минутах', verbose_name='Время приготовления',
-        validators=[validate_cooking_time])
+        help_text='Время в минутах',
+        verbose_name='Время приготовления в минутах',
+        validators=[MinValueValidator(1,
+                                      'Время не может быть меньше одной минуты'
+                                      )])
     pub_date = models.DateTimeField(auto_now_add=True,
                                     verbose_name='Дата публикации')
 
@@ -75,8 +118,10 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,
                                    verbose_name='Продукт',
                                    related_name='in_recipe')
-    amount = models.PositiveIntegerField('Количество',
-                                         validators=[validate_ingredients])
+    amount = models.PositiveIntegerField(
+        'Количество',
+        validators=[MinValueValidator(
+            1, 'Количество продукта не может быть меньше одного')])
 
     def __str__(self):
         return f'{self.amount} {self.ingredient.name} для {self.recipe.name}'
@@ -88,15 +133,17 @@ class RecipeIngredient(models.Model):
 
 class Favorite(UserRecipeBase):
 
-    class Meta:
+    class Meta(UserRecipeBase.Meta):
         verbose_name = 'избранное'
-        default_related_name = 'favorited'
+        verbose_name_plural = 'Избранные'
+        default_related_name = 'favorites'
 
 
 class ShoppingCart(UserRecipeBase):
 
-    class Meta:
+    class Meta(UserRecipeBase.Meta):
         verbose_name = 'список покупок'
+        verbose_name_plural = 'Списки покупок'
 
 
 class Follow(models.Model):
@@ -104,7 +151,7 @@ class Follow(models.Model):
                              related_name='followers',
                              verbose_name='Пользователь')
     author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='followings',
+                               related_name='authors',
                                verbose_name='Авторы')
 
     class Meta:
