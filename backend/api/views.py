@@ -110,7 +110,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=('get'),
+        methods=('get', ),
         url_path='get-link',
         url_name='get-link',
     )
