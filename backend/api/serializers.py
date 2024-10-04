@@ -121,7 +121,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 'Ингредиенты не должны повторяться.')
             instance.ingredients.clear()
 
-        self.tags_and_ingredients_set(instance, tags_data or instance.tags.all(),
+        self.tags_and_ingredients_set(instance,
+                                      tags_data or instance.tags.all(),
                                       ingredients_data)
         return super().update(instance, validated_data)
 
