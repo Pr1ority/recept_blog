@@ -191,7 +191,7 @@ class FollowSerializer(serializers.ModelSerializer):
             if limit < 0:
                 raise ValidationError(
                     'Параметр "recipes_limit" должен быть положительным'
-                    'числом или равным нулю.')
+                    'числом.')
         except ValueError:
             raise ValidationError(
                 'Параметр "recipes_limit" должен быть целым числом.')

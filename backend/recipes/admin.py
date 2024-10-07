@@ -32,7 +32,7 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='Теги')
     @mark_safe
     def tags_list(self, recipe):
-        return '<br>'.join({tag.name} for tag in recipe.tags.all())
+        return '<br>'.join(tag.name for tag in recipe.tags.all())
 
     @admin.display(description='Продукты')
     @mark_safe
