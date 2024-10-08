@@ -44,11 +44,6 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
                 'measurement_unit': ingredient.measurement_unit,
                 'amount': instance.amount,
             }
-        else:
-            return {
-                'error': 'Unexpected instance type', 
-                'instance_type': type(instance).__name__
-            }
 
 
 class TagSerializer(serializers.ModelSerializer):
