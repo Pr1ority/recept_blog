@@ -29,6 +29,7 @@ class UserSerializer(DjoserUserSerializer):
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
@@ -36,13 +37,12 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ingredient = instance.ingredient
-        representation = {
+        return {
             'id': ingredient.id,
             'name': ingredient.name,
             'measurement_unit': ingredient.measurement_unit,
-            'amount': instance.amount,
+            'amount': instance.amount
         }
-        return representation
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -89,11 +89,11 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)
-        RecipeIngredient.objects.bulk_create(RecipeIngredient(
+        RecipeIngredient.objects.bulk_create([RecipeIngredient(
             recipe=recipe,
             ingredient_id=ingredient['id'],
             amount=ingredient['amount'])
-            for ingredient in ingredients)
+            for ingredient in ingredients])
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
