@@ -101,7 +101,7 @@ class UserAdmin(BaseUserAdmin):
     @mark_safe
     def avatar_display(self, user):
         if user.avatar:
-            return f'<img src="{user.avatar.url}" width="100" height="100" />'
+            return f'<img src="{user.avatar}" width="100" height="100" />'
         return '-пусто-'
 
 
