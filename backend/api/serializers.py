@@ -36,18 +36,19 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount', )
 
     def to_representation(self, instance):
-        if isinstance(instance, RecipeIngredient):
+        if hasattr(instance, 'ingredient'):
             ingredient = instance.ingredient
-            representation = {
+            return {
                 'id': ingredient.id,
                 'name': ingredient.name,
                 'measurement_unit': ingredient.measurement_unit,
                 'amount': instance.amount,
             }
         else:
-            raise AttributeError("Expected RecipeIngredient instance, got another model.")
-        
-        return representation
+            return {
+                'error': 'Unexpected instance type', 
+                'instance_type': type(instance).__name__
+            }
 
 
 class TagSerializer(serializers.ModelSerializer):
