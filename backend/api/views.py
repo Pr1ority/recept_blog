@@ -41,6 +41,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        user = request.user
+
+        shopping_cart_recipes = ShoppingCart.objects.filter(
+            user=user).values_list('recipe', flat=True)
+
+        serializer = self.get_serializer(queryset, many=True)
+        for recipe_data in serializer.data:
+            recipe_data['is_in_shopping_cart'] = recipe_data[
+                'id'] in shopping_cart_recipes
+
+        return Response(serializer.data)
+
     @staticmethod
     def update_user_recipe_status(request, model, recipe, user,
                                   success_add_message, success_remove_message):
