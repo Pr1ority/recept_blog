@@ -19,7 +19,8 @@ class RecipeIngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'pub_date', 'favorite_count', 'id',
-                    'cooking_time', 'tags_list', 'ingredients_list', 'image')
+                    'cooking_time', 'tags_list', 'ingredients_list', 'image',
+                    'image_display')
     search_fields = ('name', 'author__username', 'author__email')
     list_filter = ('tags', 'author')
     empty_value_display = '-пусто-'
@@ -82,7 +83,7 @@ class FavoriteAdmin(admin.ModelAdmin):
 class UserAdmin(BaseUserAdmin):
     list_display = ('email', 'username', 'id', 'first_name', 'last_name',
                     'avatar', 'follows_count', 'followers_count',
-                    'recipes_count')
+                    'recipes_count', 'avatar_display')
     search_fields = ('email', 'username')
 
     @admin.display(description='подписок')
@@ -101,7 +102,7 @@ class UserAdmin(BaseUserAdmin):
     @mark_safe
     def avatar_display(self, user):
         if user.avatar:
-            return f'<img src="{user.avatar}" width="100" height="100" />'
+            return f'<img src="{user.avatar.url}" width="100" height="100" />'
         return '-пусто-'
 
 
