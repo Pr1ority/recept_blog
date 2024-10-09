@@ -128,10 +128,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_name='get-link',
     )
     def get_recipe_short_link(self, request, pk=None):
-        if not Recipe.objects.filter(id=pk).exists():
-            raise ValidationError(
-                {'status':
-                 f'Рецепт {get_object_or_404(Recipe, id=pk).name} не найден'})
+        recipe = get_object_or_404(Recipe, id=pk)
         short_link = f'{request.build_absolute_uri("/")[:-1]}/r/{str(pk)}/'
         return JsonResponse({'short_link': short_link})
 
