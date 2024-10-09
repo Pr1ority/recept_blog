@@ -131,7 +131,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, id=pk)
         short_link = request.build_absolute_uri(f'/r/{pk}/')
         print(f"Generated short link: {short_link}")
-        return JsonResponse({'short_link': short_link})
+        return JsonResponse({'short-link': short_link})
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
