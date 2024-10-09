@@ -140,7 +140,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    shopping_cart_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -158,16 +157,11 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, recipe):
         request = self.context.get('request')
-        return (request and request.user.is_authenticated
-                and ShoppingCart.objects.filter(
-                    user=request.user.id, recipe=recipe.id).exists())
-
-    def get_shopping_cart_count(self, recipe):
-        """Получаем количество рецептов в корзине пользователя"""
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return ShoppingCart.objects.filter(user=request.user).count()
-        return 0
+        if request is None or request.user.is_anonymous:
+            return False
+        return ShoppingCart.objects.filter(
+            user=request.user, recipe=recipe
+        ).exists()
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
