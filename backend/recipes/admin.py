@@ -12,8 +12,15 @@ User = get_user_model()
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    model = Recipe.ingredients.through
+    model = RecipeIngredient
     extra = 1
+    autocomplete_fields = ['ingredient']
+    fields = ('ingredient', 'amount')
+    readonly_fields = ('get_measurement_unit',)
+
+    def get_measurement_unit(self, obj):
+        return obj.ingredient.measurement_unit
+    get_measurement_unit.short_description = 'Ед. изм.'
 
 
 @admin.register(Recipe)
