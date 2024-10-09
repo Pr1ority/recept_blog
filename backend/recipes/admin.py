@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    model = RecipeIngredient
+    model = Recipe.ingredients.through
     extra = 1
 
 
