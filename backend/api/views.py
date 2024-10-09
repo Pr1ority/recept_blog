@@ -6,7 +6,6 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse, JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from django.urls import reverse
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -130,8 +129,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def get_recipe_short_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
-        short_link = request.build_absolute_uri(reverse('recipe-short-link', kwargs={'pk': pk}))
-        return Response({'short_link': short_link})
+        short_link = f'{request.build_absolute_uri("/")[:-1]}/r/{str(pk)}/'
+        return JsonResponse({'short_link': short_link})
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
