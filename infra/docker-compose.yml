@@ -34,5 +34,6 @@ services:
     ports:
       - "9100:80"
     volumes:
+      - ../docs/:/usr/share/nginx/html/api/docs/
       - static_food:/static
       - media_food:/media 
