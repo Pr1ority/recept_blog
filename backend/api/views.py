@@ -129,7 +129,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def get_recipe_short_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
-        short_link = f'{request.build_absolute_uri("/")[:-1]}/r/{str(pk)}/'
+        short_link = request.build_absolute_uri(f'/r/{pk}/')
+        print(f"Generated short link: {short_link}")
         return JsonResponse({'short_link': short_link})
 
 
