@@ -141,8 +141,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnlyPermission,)
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    search_fields = ('^name',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name',)
 
 
 class TagViewSet(viewsets.ModelViewSet):
