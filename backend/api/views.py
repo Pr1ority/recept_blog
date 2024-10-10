@@ -141,9 +141,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnlyPermission,)
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['^name']
-    ordering_fields = ['name']
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ModelViewSet):
