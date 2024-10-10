@@ -17,6 +17,7 @@ from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag, Follow)
+from .filters import IngredientFilter
 from .serializers import (IngredientSerializer, RecipeCreateUpdateSerializer,
                           RecipeSerializer, TagSerializer, UserSerializer,
                           FollowSerializer, AvatarSerializer)
@@ -142,7 +143,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnlyPermission,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name',)
+    filterset_class = IngredientFilter
 
 
 class TagViewSet(viewsets.ModelViewSet):
