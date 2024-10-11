@@ -18,14 +18,15 @@ class RecipeIngredientInline(admin.TabularInline):
     fields = ('ingredient', 'amount')
     readonly_fields = ('get_measurement_unit',)
 
+    @admin.display(description='Ед. изм.')
     def get_measurement_unit(self, obj):
         return obj.ingredient.measurement_unit
-    get_measurement_unit.short_description = 'Ед. изм.'
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'pub_date', 'favorite_count', 'id',
+    list_display = ('name', 'author', 'formatted_pub_date', 'favorite_count',
+                    'id',
                     'cooking_time', 'tags_list', 'ingredients_list',
                     'image_display')
     search_fields = ('name', 'author__username', 'author__email')
@@ -36,6 +37,10 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='в избранном')
     def favorite_count(self, recipe):
         return recipe.favorites.count()
+
+    @admin.display(description='Дата публикации')
+    def formatted_pub_date(self, recipe):
+        return recipe.pub_date.strftime('%d %b %y')
 
     @admin.display(description='Теги')
     @mark_safe
