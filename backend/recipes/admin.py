@@ -12,35 +12,9 @@ from .models import (Ingredient, Recipe, RecipeIngredient,
 User = get_user_model()
 
 
-class RecipeIngredientInlineForm(forms.ModelForm):
-    class Meta:
-        model = RecipeIngredient
-        fields = ['ingredient', 'amount']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            ingredient = self.instance.ingredient
-            self.fields['amount'].help_text = f'Ед.изм.: {ingredient.measurement_unit}'
-        else:
-            # В случае создания нового рецепта, предварительно показываем "Не указано"
-            self.fields['amount'].help_text = 'Ед.изм.: Не указано'
-
-    def clean(self):
-        cleaned_data = super().clean()
-        ingredient = cleaned_data.get('ingredient')
-        if ingredient:
-            self.fields['amount'].help_text = f'Ед.изм.: {ingredient.measurement_unit}'
-        return cleaned_data
-
-
-class RecipeIngredientInline(admin.TabularInline):
+class RecipeIngredientAdmin(admin.StackedInline):
     model = RecipeIngredient
-    form = RecipeIngredientInlineForm
-    extra = 1
-    min_num = 1
-    validate_min = True
-    fields = ['ingredient', 'amount']
+    autocomplete_fields = ('ingredient',)
 
 
 @admin.register(Recipe)
@@ -52,7 +26,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author__username', 'author__email')
     list_filter = ('tags', 'author')
     empty_value_display = '-пусто-'
-    inlines = [RecipeIngredientInline]
+    inlines = [RecipeIngredientAdmin]
 
     @admin.display(description='в избранном')
     def favorite_count(self, recipe):
@@ -91,12 +65,6 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
     search_fields = ('name', 'measurement_unit')
     list_filter = ('measurement_unit',)
-
-
-@admin.register(RecipeIngredient)
-class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'amount')
-    search_fields = ('recipe__name', 'ingredient__name')
 
 
 @admin.register(ShoppingCart)
