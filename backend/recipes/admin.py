@@ -17,6 +17,7 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 1
     autocomplete_fields = ['ingredient']
     fields = ['ingredient', 'amount', 'get_measurement_unit']
+    readonly_fields = ['get_measurement_unit']
 
     @admin.display(description='Ед. изм.')
     def get_measurement_unit(self, recipe):
