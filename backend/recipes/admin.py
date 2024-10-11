@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
@@ -11,12 +12,32 @@ from .models import (Ingredient, Recipe, RecipeIngredient,
 User = get_user_model()
 
 
+class RecipeIngredientInlineForm(forms.ModelForm):
+    class Meta:
+        model = RecipeIngredient
+        fields = ['ingredient', 'amount']
+
+    def clean(self):
+        if not self.cleaned_data.get('ingredient'):
+            raise forms.ValidationError('Ингредиент обязателен.')
+        if not self.cleaned_data.get('amount'):
+            raise forms.ValidationError('Количество обязательно.')
+
+    def get_measurement_unit(self):
+        ingredient = self.cleaned_data.get('ingredient')
+        if ingredient:
+            return ingredient.measurement_unit
+        return 'Ед. изм. не указана'
+    
+
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
+    form = RecipeIngredientInlineForm
     extra = 1
-    autocomplete_fields = ['ingredient']
-    fields = ('ingredient', 'amount')
-    readonly_fields = ('get_measurement_unit',)
+    min_num = 1
+    validate_min = True
+    fields = ['ingredient', 'amount', 'get_measurement_unit']
+    readonly_fields = ['get_measurement_unit']
 
     @admin.display(description='Ед. изм.')
     def get_measurement_unit(self, recipe):
