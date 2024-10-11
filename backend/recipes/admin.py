@@ -12,9 +12,18 @@ from .models import (Ingredient, Recipe, RecipeIngredient,
 User = get_user_model()
 
 
-class RecipeIngredientAdmin(admin.StackedInline):
+class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
-    autocomplete_fields = ('ingredient',)
+    extra = 1
+    autocomplete_fields = ['ingredient']
+    fields = ['ingredient', 'amount', 'get_measurement_unit']
+    readonly_fields = ['get_measurement_unit']
+
+    @admin.display(description='Ед. изм.')
+    def get_measurement_unit(self, recipe):
+        if recipe.ingredient:
+            return recipe.ingredient.measurement_unit
+        return 'Не указано'
 
 
 @admin.register(Recipe)
@@ -26,7 +35,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author__username', 'author__email')
     list_filter = ('tags', 'author')
     empty_value_display = '-пусто-'
-    inlines = [RecipeIngredientAdmin]
+    inlines = [RecipeIngredientInline]
 
     @admin.display(description='в избранном')
     def favorite_count(self, recipe):
@@ -58,6 +67,13 @@ class RecipeAdmin(admin.ModelAdmin):
         if recipe.image:
             return f'<img src="{recipe.image.url}" width="100" height="100" />'
         return '-пусто-'
+
+
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    list_display = ('id', 'recipe', 'ingredient', 'amount')
+    list_filter = ('recipe', 'ingredient')
+    search_fields = ('recipe', 'ingredient')
 
 
 @admin.register(Ingredient)
