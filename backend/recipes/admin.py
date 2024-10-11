@@ -28,7 +28,7 @@ class RecipeIngredientInlineForm(forms.ModelForm):
         if ingredient:
             return ingredient.measurement_unit
         return 'Ед. изм. не указана'
-    
+
 
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
