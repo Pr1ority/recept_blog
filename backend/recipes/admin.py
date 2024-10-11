@@ -17,17 +17,21 @@ class RecipeIngredientInlineForm(forms.ModelForm):
         model = RecipeIngredient
         fields = ['ingredient', 'amount']
 
-    def clean(self):
-        if not self.cleaned_data.get('ingredient'):
-            raise forms.ValidationError('Ингредиент обязателен.')
-        if not self.cleaned_data.get('amount'):
-            raise forms.ValidationError('Количество обязательно.')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields[
+                'amount'].help_text = (
+                    f'Ед.изм.:{self.instance.ingredient.measurement_unit}')
 
-    def get_measurement_unit(self):
-        ingredient = self.cleaned_data.get('ingredient')
+    def clean(self):
+        cleaned_data = super().clean()
+        ingredient = cleaned_data.get('ingredient')
         if ingredient:
-            return ingredient.measurement_unit
-        return 'Ед. изм. не указана'
+            self.fields[
+                'amount'].help_text = (
+                    f'Ед. изм.: {ingredient.measurement_unit}')
+        return cleaned_data
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -36,14 +40,7 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 1
     min_num = 1
     validate_min = True
-    fields = ['ingredient', 'amount', 'get_measurement_unit']
-    readonly_fields = ['get_measurement_unit']
-
-    @admin.display(description='Ед. изм.')
-    def get_measurement_unit(self, recipe):
-        if recipe.ingredient:
-            return recipe.ingredient.measurement_unit
-        return 'Не указано'
+    fields = ['ingredient', 'amount']
 
 
 @admin.register(Recipe)
