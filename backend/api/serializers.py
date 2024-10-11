@@ -91,11 +91,11 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)
-        RecipeIngredient.objects.bulk_create([RecipeIngredient(
+        RecipeIngredient.objects.bulk_create(RecipeIngredient(
             recipe=recipe,
             ingredient_id=ingredient['id'],
             amount=ingredient['amount'])
-            for ingredient in ingredients])
+            for ingredient in ingredients)
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')

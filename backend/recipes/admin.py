@@ -19,8 +19,10 @@ class RecipeIngredientInline(admin.TabularInline):
     readonly_fields = ('get_measurement_unit',)
 
     @admin.display(description='Ед. изм.')
-    def get_measurement_unit(self, obj):
-        return obj.ingredient.measurement_unit
+    def get_measurement_unit(self, recipe):
+        if recipe.ingredient:
+            return recipe.ingredient.measurement_unit
+        return 'Не указано'
 
 
 @admin.register(Recipe)
