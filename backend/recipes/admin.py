@@ -20,17 +20,17 @@ class RecipeIngredientInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.fields[
-                'amount'].help_text = (
-                    f'Ед.изм.:{self.instance.ingredient.measurement_unit}')
+            ingredient = self.instance.ingredient
+            self.fields['amount'].help_text = f'Ед.изм.: {ingredient.measurement_unit}'
+        else:
+            # В случае создания нового рецепта, предварительно показываем "Не указано"
+            self.fields['amount'].help_text = 'Ед.изм.: Не указано'
 
     def clean(self):
         cleaned_data = super().clean()
         ingredient = cleaned_data.get('ingredient')
         if ingredient:
-            self.fields[
-                'amount'].help_text = (
-                    f'Ед. изм.: {ingredient.measurement_unit}')
+            self.fields['amount'].help_text = f'Ед.изм.: {ingredient.measurement_unit}'
         return cleaned_data
 
 
