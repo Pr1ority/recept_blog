@@ -21,11 +21,10 @@ class RecipeIngredientInline(admin.TabularInline):
 
     @admin.display(description='Ед. изм.')
     def get_measurement_unit(self, obj):
-        print('*' * 50)
-        print(f'Вызван метод get_measurement_unit для: {obj}')
-        print(f'Ингредиент: {obj.ingredient if obj else "Нет объекта"}')
-        print('*' * 50)
+        print(f'Объект: {obj}')
+        print(f'Ингредиент: {getattr(obj, "ingredient", None)}')
         if obj.ingredient:
+            print(f'Единица измерения: {obj.ingredient.measurement_unit}')
             return obj.ingredient.measurement_unit
         return 'Не указано'
 
