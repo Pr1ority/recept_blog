@@ -15,15 +15,7 @@ User = get_user_model()
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 1
-    autocomplete_fields = ['ingredient']
-    fields = ['ingredient', 'amount', 'get_measurement_unit']
-    readonly_fields = ['get_measurement_unit']
-
-    @admin.display(description='Ед. изм.')
-    def get_measurement_unit(self, recipe):
-        if recipe.ingredient:
-            return recipe.ingredient.measurement_unit
-        return 'Не указано'
+    min_num = 1
 
 
 @admin.register(Recipe)
@@ -34,7 +26,6 @@ class RecipeAdmin(admin.ModelAdmin):
                     'image_display')
     search_fields = ('name', 'author__username', 'author__email')
     list_filter = ('tags', 'author')
-    empty_value_display = '-пусто-'
     inlines = [RecipeIngredientInline]
 
     @admin.display(description='в избранном')
