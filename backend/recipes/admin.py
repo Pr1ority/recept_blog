@@ -12,21 +12,24 @@ from .models import (Ingredient, Recipe, RecipeIngredient,
 User = get_user_model()
 
 
+class RecipeIngredientInlineForm(forms.ModelForm):
+    class Meta:
+        model = Recipe.ingredients.through
+        fields = ['ingredient', 'amount']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['ingredient'].queryset = Ingredient.objects.all()
+        self.fields['ingredient'].label_from_instance = (
+            lambda obj: f'{obj.name} ({obj.measurement_unit})'
+        )
+
+
 class RecipeIngredientInline(admin.TabularInline):
     model = Recipe.ingredients.through
     extra = 1
     min_num = 1
-    fields = ['ingredient', 'amount', 'get_measurement_unit']
-    readonly_fields = ['get_measurement_unit']
-
-    @admin.display(description='Ед. изм.')
-    def get_measurement_unit(self, obj):
-        print(f'Объект: {obj}')
-        print(f'Ингредиент: {getattr(obj, "ingredient", None)}')
-        if obj.ingredient:
-            print(f'Единица измерения: {obj.ingredient.measurement_unit}')
-            return obj.ingredient.measurement_unit
-        return 'Не указано'
+    form = RecipeIngredientInlineForm
 
 
 @admin.register(Recipe)
