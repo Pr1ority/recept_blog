@@ -28,7 +28,7 @@ git clone https://github.com/Pr1ority/recept_blog.git
 ```
 2. Перейдите в корневую директорию
 ```bash
-cd foodgram
+cd recept_blog
 ```
 3. Настройте виртуальное окружение
 ```bash
@@ -78,11 +78,11 @@ docker-compose exec backend python manage.py runserver 0.0.0.0:8000
 ## Как развернуть репозиторий локально
 1. Клонируйте репозиторий
 ```bash
-git clone https://github.com/Pr1ority/foodgram.git
+git clone https://github.com/Pr1ority/recept_blog.git
 ```
 2. Перейдите в корневую директорию
 ```bash
-cd foodgram
+cd recept_blog
 ```
 3. Настройте виртуальное окружение
 ```bash
